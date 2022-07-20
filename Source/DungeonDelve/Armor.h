@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Item.h"
 #include "DelveDamageType.h"
+#include "EquipmentSlot.h"
 #include "Armor.generated.h"
 
 /**
@@ -23,5 +24,7 @@ class DUNGEONDELVE_API AArmor : public AItem
 		int Defence;
 
 		TMap<EDamageType, int32> ResistanceMap;
+
+		EEquipmentSlot* ArmorSlot;
 	
 };

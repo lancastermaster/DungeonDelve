@@ -9,6 +9,7 @@
 #include "GameplayTagContainer.h"
 #include <GameplayEffectTypes.h>
 #include "Item.h"
+#include "EquipmentSlot.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -122,6 +123,7 @@ private:
 
 	TMap<EDamageType, int32> ResistanceMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	bool bTraceForItems;
 
 	int8 OverlappedItemCount;
@@ -135,6 +137,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TArray<AItem*> Inventory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
+	TMap<EEquipmentSlot, AItem*> EquippedItems;
 	
 public:	
 	FORCEINLINE int GetHealth() {return Health;}

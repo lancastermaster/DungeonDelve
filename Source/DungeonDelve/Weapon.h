@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Item.h"
 #include "DelveDamageType.h"
+#include "EquipmentSlot.h"
 #include "Weapon.generated.h"
 
 /**
@@ -39,6 +40,8 @@ class DUNGEONDELVE_API AWeapon : public AItem
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		bool bTwoHands = false;
+
+		EEquipmentSlot* WeaponSlot;
 
 	public:
 	//for the getters and setters

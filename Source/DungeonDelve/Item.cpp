@@ -7,6 +7,9 @@
 #include "Components/SceneComponent.h"
 #include "Components/WidgetComponent.h"
 #include "PaperSpriteComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Camera/PlayerCameraManager.h"
 
 // Sets default values
 AItem::AItem()
@@ -42,5 +45,18 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	RotateTowardsPlayer();
 }
 
+void AItem::RotateTowardsPlayer()
+{
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	FVector ItemLocation = GetActorLocation();
+
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(ItemLocation,CameraManager->GetCameraLocation());
+
+	FRotator DeltaRotation = FRotator::ZeroRotator;
+	DeltaRotation.Yaw = LookAtRotation.Yaw - 90;
+
+	ItemSprite->SetWorldRotation(DeltaRotation);
+}

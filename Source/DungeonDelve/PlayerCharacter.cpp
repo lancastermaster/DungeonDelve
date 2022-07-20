@@ -144,10 +144,17 @@ void APlayerCharacter::SecondaryAction()
 
 void APlayerCharacter::Interact()
 {
-	/*if(TraceHitItem)
+	if(TraceHitItem != nullptr)
 	{
-		Inventory.Add(TraceHitItem);
-	}*/
+		AItem* ItemToAdd = TraceHitItem;
+
+		Inventory.Add(ItemToAdd);
+		TraceHitItem->Destroy();
+
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Inventory[0]->GetItemName());
+	}
+
+	
 }
 
 bool APlayerCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
