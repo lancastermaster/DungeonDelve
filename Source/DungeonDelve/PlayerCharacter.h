@@ -53,13 +53,20 @@ protected:
 
 	void InitializeDefaultAttributesAbilities();
 
-	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
+	bool TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation);
 
 	void TraceForItems();
+
+	void EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip);
+
+	void PickupItem(AItem* ItemToPickup);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
 	class UCameraComponent* Camera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
+	class USceneComponent* MainHandSpawn;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = true))
 	float RotationRate = 60.f;
@@ -133,6 +140,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = true))
 	AItem* TraceHitItemLastFrame;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AItem>GoldPickup;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TArray<AItem*> Inventory;

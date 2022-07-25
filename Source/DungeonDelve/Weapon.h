@@ -19,12 +19,41 @@ class DUNGEONDELVE_API AWeapon : public AItem
 	
 	public:
 
+		UFUNCTION(BlueprintCallable)
+		void PlayAttackSound(FVector SoundLocation);
+
+		UFUNCTION(BlueprintCallable)
+		void SpawnAttackParticles(UParticleSystem* Particles, FVector SpawnLocation, FRotator SpawnRotation);
+
+		UFUNCTION(BlueprintImplementableEvent)
+		void Attack();
+		
 	protected:
 		AController* GetOwnerController() const;
 
+		bool TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation);
+		
+		UFUNCTION(BlueprintCallable)
+		void SpawnProjectile(USceneComponent* ProjectileSpawn); 
+
+		UFUNCTION(BlueprintCallable)
+		void ShootRaycast(USceneComponent* TraceStart);
+
 	private:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
-		USoundBase* AttackSound;
+		class USoundBase* AttackSound;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
+		class USoundBase* HitSound;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+		class USceneComponent* AttackOrigin;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX", meta = (AllowPrivateAccess = true))
+		class UParticleSystem* AttackParticles;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+		TSubclassOf<class AProjectile> WeaponProjectile;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		EDamageType WeaponDamageType;
@@ -36,18 +65,17 @@ class DUNGEONDELVE_API AWeapon : public AItem
 		float AttackRate;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
-		bool bRanged = false;
+		float WeaponRange;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		bool bTwoHands = false;
 
-		EEquipmentSlot* WeaponSlot;
 
 	public:
 	//for the getters and setters
 		FORCEINLINE int GetDamage() const {return Damage;}
 		FORCEINLINE float GetAttackRate() const {return AttackRate;}
-		FORCEINLINE bool GetIsRanged() const {return bRanged;}
+		FORCEINLINE float GetWeaponRange() const {return WeaponRange;}
 		FORCEINLINE bool GetTwoHands() const {return bTwoHands;}
 		FORCEINLINE EDamageType GetWeaponDamageType() const {return WeaponDamageType;}
 };

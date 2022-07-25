@@ -67,6 +67,10 @@ protected:
 
 	void RotateTowardsPlayer();
 
+	void SetItemProperties(EItemState State);
+
+	void SetPlayerRef();
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	class UWidgetComponent* PickupWidget;
@@ -82,6 +86,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	class UPaperSpriteComponent* ItemSprite;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
+	class UPointLightComponent* ItemLight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
 	class USoundBase* PickupSound;
@@ -101,11 +108,17 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	EItemType ItemType;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = true))
+	class APlayerCharacter* PlayerRef;
+
 public:
 	FORCEINLINE float GetItemWeight() const {return ItemWeight;}
 	FORCEINLINE int GetItemValue() const {return ItemValue;}
 	FORCEINLINE EItemState GetItemState() const {return ItemState;}
 	FORCEINLINE EItemType GetItemType() const {return ItemType;}
 	FORCEINLINE FString GetItemName() const {return ItemName;}
+	FORCEINLINE APlayerCharacter* GetPlayerRef() const {return PlayerRef;}
+
+	void SetItemState(EItemState NewState);
 
 };

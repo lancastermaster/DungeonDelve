@@ -6,6 +6,10 @@
 #include "PlayerAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Item.h"
+#include "Armor.h"
+#include "Weapon.h"
+#include "Components/SceneComponent.h"
 
 
 // Sets default values
@@ -16,6 +20,9 @@ APlayerCharacter::APlayerCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera -> SetupAttachment(RootComponent);
+
+	MainHandSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Main Hand Spawn"));
+	MainHandSpawn -> SetupAttachment(RootComponent);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	PlayerAttributes = CreateDefaultSubobject<UPlayerAttributeSet>(TEXT("PlayerAttributes"));
@@ -134,7 +141,14 @@ void APlayerCharacter::LookRight(float AxisValue)
 
 void APlayerCharacter::PrimaryAction()
 {
-	
+	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
+	{
+		AWeapon* MainHand = Cast<AWeapon>(EquippedItems[EEquipmentSlot::EES_MainHand]);
+		if(MainHand)
+		{
+			MainHand->Attack();
+		}
+	}
 }
 
 void APlayerCharacter::SecondaryAction()
@@ -146,18 +160,11 @@ void APlayerCharacter::Interact()
 {
 	if(TraceHitItem != nullptr)
 	{
-		AItem* ItemToAdd = TraceHitItem;
-
-		Inventory.Add(ItemToAdd);
-		TraceHitItem->Destroy();
-
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *Inventory[0]->GetItemName());
+		PickupItem(TraceHitItem);
 	}
-
-	
 }
 
-bool APlayerCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
+bool APlayerCharacter::TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation)
 {
 	//get viewportsize
 	FVector2D ViewPortSize;
@@ -182,7 +189,7 @@ bool APlayerCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& O
 	{
 		//trace from crosshair world location outward
         FVector Start{CrosshairWorldPosition};
-        FVector End {Start + CrosshairWorldDirection * InteractReach};
+        FVector End {Start + CrosshairWorldDirection * TraceRange};
 		OutHitLocation = End;
 
 		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
@@ -202,7 +209,7 @@ void APlayerCharacter::TraceForItems()
 
 	FHitResult ItemTraceResult;
 	FVector ItemTraceLocation;
-	TraceUnderCrosshairs(ItemTraceResult, ItemTraceLocation);
+	TraceUnderCrosshairs(InteractReach, ItemTraceResult, ItemTraceLocation);
 	if(ItemTraceResult.bBlockingHit)
 	{
 		TraceHitItem = Cast<AItem>(ItemTraceResult.Actor);
@@ -215,4 +222,29 @@ void APlayerCharacter::TraceForItems()
 void APlayerCharacter::SetGold(int Value)
 {
 	Gold += Value;
+}
+
+void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip)
+{
+	EquippedItems.Add(EquipmentSlot, ItemToEquip);
+}
+
+void APlayerCharacter::PickupItem(AItem* ItemToPickup)
+{
+	if(ItemToPickup->GetItemName() == TEXT("Gold"))
+	{
+		SetGold(ItemToPickup->GetItemValue());
+		UE_LOG(LogTemp, Warning, TEXT("%d Gold in Inventory"), Gold);
+		ItemToPickup->Destroy();
+	}
+	else
+	{
+		Inventory.Add(ItemToPickup);
+		ItemToPickup->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
+		ItemToPickup->SetOwner(this);
+		ItemToPickup->SetItemState(EItemState::EIS_Carried);
+		//TraceHitItem->Destroy();
+
+		UE_LOG(LogTemp, Warning, TEXT("%s added to Inventory"), *ItemToPickup->GetItemName());
+	}
 }
