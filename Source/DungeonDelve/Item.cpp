@@ -120,7 +120,7 @@ void AItem::SetItemProperties(EItemState State)
 		case EItemState::EIS_Equipped:
 			ItemSprite->SetSimulatePhysics(false);
 			ItemSprite->SetEnableGravity(false);
-			ItemSprite->SetVisibility(true);
+			ItemSprite->SetVisibility(false);
 			ItemSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			ItemSprite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

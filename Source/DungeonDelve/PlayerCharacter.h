@@ -49,10 +49,20 @@ protected:
 	
 	void Interact();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleInventory();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleCharacterSheet();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetInventoryItemReference(AItem* Item);
+
 	void InitializeDerivedStats();
 
 	void InitializeDefaultAttributesAbilities();
 
+	UFUNCTION(BlueprintCallable)
 	bool TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation);
 
 	void TraceForItems();
@@ -60,6 +70,12 @@ protected:
 	void EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip);
 
 	void PickupItem(AItem* ItemToPickup);
+
+	void SpawnDefaultWeapon();
+
+	void StartAttackTimer();
+
+	void ResetCanAttack();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
@@ -101,6 +117,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	float DamageBoost; //add Strength
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Defence;
 
 	//AbilityScores
@@ -128,6 +145,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	int Gold;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	TMap<EDamageType, int32> ResistanceMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
@@ -142,13 +160,19 @@ private:
 	AItem* TraceHitItemLastFrame;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
-	TSubclassOf<AItem>GoldPickup;
+	TSubclassOf<AItem>DefaultWeapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TArray<AItem*> Inventory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TMap<EEquipmentSlot, AItem*> EquippedItems;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	bool bCanAttack;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	FTimerHandle AttackTimer;
 	
 public:	
 	FORCEINLINE int GetHealth() {return Health;}

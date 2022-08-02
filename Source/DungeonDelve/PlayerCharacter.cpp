@@ -10,6 +10,7 @@
 #include "Armor.h"
 #include "Weapon.h"
 #include "Components/SceneComponent.h"
+#include "Containers/Array.h"
 
 
 // Sets default values
@@ -22,7 +23,7 @@ APlayerCharacter::APlayerCharacter()
 	Camera -> SetupAttachment(RootComponent);
 
 	MainHandSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Main Hand Spawn"));
-	MainHandSpawn -> SetupAttachment(RootComponent);
+	MainHandSpawn -> SetupAttachment(Camera);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	PlayerAttributes = CreateDefaultSubobject<UPlayerAttributeSet>(TEXT("PlayerAttributes"));
@@ -41,6 +42,9 @@ void APlayerCharacter::BeginPlay()
 	Magic = MaxMagic;
 	CarryWeight = 0;
 	Gold = 0;
+	bCanAttack = true;
+
+	SpawnDefaultWeapon();
 }
 
 void APlayerCharacter::InitializeDefaultAttributesAbilities()
@@ -117,6 +121,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::PrimaryAction);
 	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SecondaryAction);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("ToggleInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleInventory);
+	PlayerInputComponent->BindAction(TEXT("ToggleCharacterSheet"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleCharacterSheet);
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -141,13 +147,9 @@ void APlayerCharacter::LookRight(float AxisValue)
 
 void APlayerCharacter::PrimaryAction()
 {
-	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
+	if(bCanAttack)
 	{
-		AWeapon* MainHand = Cast<AWeapon>(EquippedItems[EEquipmentSlot::EES_MainHand]);
-		if(MainHand)
-		{
-			MainHand->Attack();
-		}
+		StartAttackTimer();
 	}
 }
 
@@ -226,7 +228,9 @@ void APlayerCharacter::SetGold(int Value)
 
 void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip)
 {
+	EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Carried);
 	EquippedItems.Add(EquipmentSlot, ItemToEquip);
+	EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Equipped);
 }
 
 void APlayerCharacter::PickupItem(AItem* ItemToPickup)
@@ -239,12 +243,47 @@ void APlayerCharacter::PickupItem(AItem* ItemToPickup)
 	}
 	else
 	{
-		Inventory.Add(ItemToPickup);
-		ItemToPickup->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
-		ItemToPickup->SetOwner(this);
-		ItemToPickup->SetItemState(EItemState::EIS_Carried);
-		//TraceHitItem->Destroy();
+		if(Inventory.Num() < 33)
+		{
+			Inventory.Add(ItemToPickup);
+			ItemToPickup->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
+			ItemToPickup->SetOwner(this);
+			ItemToPickup->SetItemState(EItemState::EIS_Carried);
 
-		UE_LOG(LogTemp, Warning, TEXT("%s added to Inventory"), *ItemToPickup->GetItemName());
+			SetInventoryItemReference(ItemToPickup);
+		}
+		return;
 	}
+}
+
+void APlayerCharacter::SpawnDefaultWeapon()
+{
+	AItem* SpawnedDefault = GetWorld()->SpawnActor<AItem>(DefaultWeapon);
+
+	Inventory.Add(SpawnedDefault);
+	SpawnedDefault->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
+	SpawnedDefault->SetOwner(this);
+	SpawnedDefault->SetItemState(EItemState::EIS_Carried);
+			
+	EquipItem(EEquipmentSlot::EES_MainHand, SpawnedDefault);
+	SpawnedDefault->SetItemState(EItemState::EIS_Equipped);
+}
+
+void APlayerCharacter::StartAttackTimer()
+{
+	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
+	{
+		AWeapon* MainHand = Cast<AWeapon>(EquippedItems[EEquipmentSlot::EES_MainHand]);
+		if(MainHand)
+		{
+			MainHand->Attack();
+			bCanAttack = false;
+			GetWorldTimerManager().SetTimer(AttackTimer, this, &APlayerCharacter::ResetCanAttack, MainHand->GetAttackRate());
+		}
+	}
+}
+
+void APlayerCharacter::ResetCanAttack()
+{
+	bCanAttack = true;
 }
