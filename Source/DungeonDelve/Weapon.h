@@ -37,7 +37,7 @@ class DUNGEONDELVE_API AWeapon : public AItem
 		void SpawnProjectile(USceneComponent* ProjectileSpawn); 
 
 		UFUNCTION(BlueprintCallable)
-		void ShootRaycast(USceneComponent* TraceStart);
+		void ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> DamageType);
 
 	private:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))

@@ -77,6 +77,8 @@ protected:
 
 	void ResetCanAttack();
 
+	void Die();
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
 	class UCameraComponent* Camera;

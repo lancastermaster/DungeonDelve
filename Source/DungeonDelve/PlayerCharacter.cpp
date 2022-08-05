@@ -228,7 +228,7 @@ void APlayerCharacter::SetGold(int Value)
 
 void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip)
 {
-	EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Carried);
+	//EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Carried);
 	EquippedItems.Add(EquipmentSlot, ItemToEquip);
 	EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Equipped);
 }
@@ -266,7 +266,7 @@ void APlayerCharacter::SpawnDefaultWeapon()
 	SpawnedDefault->SetItemState(EItemState::EIS_Carried);
 			
 	EquipItem(EEquipmentSlot::EES_MainHand, SpawnedDefault);
-	SpawnedDefault->SetItemState(EItemState::EIS_Equipped);
+	//SpawnedDefault->SetItemState(EItemState::EIS_Equipped);
 }
 
 void APlayerCharacter::StartAttackTimer()
@@ -286,4 +286,9 @@ void APlayerCharacter::StartAttackTimer()
 void APlayerCharacter::ResetCanAttack()
 {
 	bCanAttack = true;
+}
+
+void APlayerCharacter::Die()
+{
+
 }

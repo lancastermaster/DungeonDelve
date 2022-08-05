@@ -7,6 +7,10 @@
 #include "Sound/SoundBase.h"
 #include "GameFramework/Controller.h"
 #include "Projectile.h"
+#include "HarmableInterface.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "BaseEnemy.h"
+#include "GameFramework/DamageType.h"
 
 AController* AWeapon::GetOwnerController() const
 {
@@ -19,15 +23,8 @@ AController* AWeapon::GetOwnerController() const
 
 void AWeapon::PlayAttackSound(FVector SoundLocation)
 {
-    if(!AttackSound)
-    {
-        UE_LOG(LogTemp, Error, TEXT("Attack Sound not valid!"));
-    }
-    else
-    {
-    //UGameplayStatics::SpawnSoundAtLocation(GetWorld(), AttackSound, SoundLocation);
+    if(!AttackSound)return;
     UGameplayStatics::SpawnSound2D(GetWorld(), AttackSound);
-    }
 }
 
 void AWeapon::SpawnAttackParticles(UParticleSystem* Particles, FVector SpawnLocation, FRotator SpawnRotation)
@@ -75,18 +72,37 @@ bool AWeapon::TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, F
 	return false;
 }
 
-void AWeapon::ShootRaycast(USceneComponent* TraceStart)
+void AWeapon::ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> DamageType)
 {
     FVector SpawnLocation = TraceStart->GetComponentLocation();
     FHitResult RaycastHit;
     FVector HitLocation;
 
-    //PlayAttackSound(SpawnLocation);
+    PlayAttackSound(SpawnLocation);
 
     bool bBeamEnd = TraceUnderCrosshairs(WeaponRange, RaycastHit, HitLocation);
     if(bBeamEnd)
     {
-        SpawnAttackParticles(AttackParticles, SpawnLocation, SpawnLocation.Rotation());
+        //does the hit actor implement the Harmable Interface?
+        if(RaycastHit.Actor.IsValid())
+        {
+            IHarmableInterface* HarmableInterface = Cast<IHarmableInterface>(RaycastHit.Actor.Get());
+            if(HarmableInterface)
+            {
+               auto HitEnemy = Cast<ABaseEnemy>(RaycastHit.Actor.Get());
+               if(HitEnemy)
+               {
+                    UGameplayStatics::ApplyDamage(
+                        HitEnemy,
+                        UKismetMathLibrary::Round(GetDamage()),
+                        this->GetOwnerController(),
+                        this,
+                        DamageType
+                    );
+               } 
+            }
+        }
+        SpawnAttackParticles(AttackParticles, HitLocation, HitLocation.Rotation());
     }
 }
 
@@ -97,7 +113,7 @@ void AWeapon::SpawnProjectile(USceneComponent* ProjectileSpawn)
 
     if(WeaponProjectile)
     {
-        //PlayAttackSound(SpawnLocation);
+        PlayAttackSound(SpawnLocation);
 
         AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(WeaponProjectile, SpawnLocation, SpawnRotation);
         Projectile->SetOwner(this->GetOwner());
