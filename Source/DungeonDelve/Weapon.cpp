@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "BaseEnemy.h"
 #include "GameFramework/DamageType.h"
+#include "PlayerCharacter.h"
 
 AController* AWeapon::GetOwnerController() const
 {
@@ -72,7 +73,7 @@ bool AWeapon::TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, F
 	return false;
 }
 
-void AWeapon::ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> DamageType)
+void AWeapon::ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> RaycastDamageType)
 {
     FVector SpawnLocation = TraceStart->GetComponentLocation();
     FHitResult RaycastHit;
@@ -96,8 +97,8 @@ void AWeapon::ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamag
                         HitEnemy,
                         UKismetMathLibrary::Round(GetDamage()),
                         this->GetOwnerController(),
-                        this,
-                        DamageType
+                        this->GetOwner(),
+                        RaycastDamageType
                     );
                } 
             }

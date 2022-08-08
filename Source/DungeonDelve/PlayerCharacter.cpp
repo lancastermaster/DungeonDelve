@@ -40,7 +40,6 @@ void APlayerCharacter::BeginPlay()
 	
 	Health = MaxHealth;
 	Magic = MaxMagic;
-	CarryWeight = 0;
 	Gold = 0;
 	bCanAttack = true;
 
@@ -94,15 +93,14 @@ void APlayerCharacter::InitializeDerivedStats()
 {
 	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
 
-	MaxHealth = 50 + Endurance * 10;
-	MaxMagic = 50 + (Presence * 5) + (Intelligence * 5);
-	MaxCarryWeight = 50 + (Strength * 5) + (Endurance * 5);
-	MovementSpeed = Agility * 100;
-	JumpHeight = Agility * 90;
-
-	MoveComp->MaxWalkSpeed = MovementSpeed;
-	MoveComp->MaxWalkSpeedCrouched = MovementSpeed / 2;
-	MoveComp->JumpZVelocity = JumpHeight;
+	MaxHealth = 50 + (Endurance * 10);
+	MaxMagic = 50 + (Intelligence * 10);
+	Defence = Agility;
+	DamageBoost = Strength;
+	ResistanceMap.Add(EDamageType::EDT_Fire, Presence);
+	ResistanceMap.Add(EDamageType::EDT_Cold, Presence);
+	ResistanceMap.Add(EDamageType::EDT_Lightning, Presence);
+	ResistanceMap.Add(EDamageType::EDT_Magic, Presence);
 }
 
 // Called to bind functionality to input

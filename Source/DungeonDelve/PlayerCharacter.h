@@ -96,51 +96,39 @@ private:
 	int Health;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	int MaxHealth; //base value should be 50 + Endurance * 10
+	int MaxHealth; //base value should be 50 + (Endurance * 10)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Magic;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	int MaxMagic; //base value should be 50 + (Presence * 5) + (Intelligence * 5)
+	int MaxMagic; //base value should be 50 + (Intelligence * 10)
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	float MaxCarryWeight; //add strength * 5 and endurance * 5
+	int DamageBoost; //add Strength
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	float CarryWeight;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	float MovementSpeed; //add Agility * 10
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	float JumpHeight; //add Agility * 10
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	float DamageBoost; //add Strength
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	int Defence;
+	int Defence; //Add Agility
 
 	//AbilityScores
 
-	//used to calculate damage and increase carry weight
+	//used to calculate damage
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Strength;
 
-	//increases health and carry weight
+	//increases health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Endurance;
 
-	//increases movement speed and jump height
+	//increases Defence
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Agility;
 
-	//increases Magic and the effectiveness of spells
+	//increases Magic
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Intelligence;
 
-	//increases Magic and the Bartering skill
+	//increases Magic, Fire, Lightning, and Cold resists
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Presence;
 

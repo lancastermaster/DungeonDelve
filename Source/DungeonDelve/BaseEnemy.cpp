@@ -12,6 +12,11 @@ ABaseEnemy::ABaseEnemy()
 
 }
 
+void ABaseEnemy::BeginPlay()
+{
+    
+}
+
 void ABaseEnemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
@@ -44,6 +49,7 @@ void ABaseEnemy::Harmed_Implementation(FHitResult HitResult)
 float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
     int HurtAmount = UKismetMathLibrary::Round(DamageAmount);
+    HurtAmount-=Defence;
 
     if(EnemyController)
     {

@@ -37,7 +37,7 @@ class DUNGEONDELVE_API AWeapon : public AItem
 		void SpawnProjectile(USceneComponent* ProjectileSpawn); 
 
 		UFUNCTION(BlueprintCallable)
-		void ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> DamageType);
+		void ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> RaycastDamageType);
 
 	private:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
@@ -59,6 +59,9 @@ class DUNGEONDELVE_API AWeapon : public AItem
 		EDamageType WeaponDamageType;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+		TSubclassOf<class UDamageType> DamageType;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		int Damage;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
@@ -69,7 +72,6 @@ class DUNGEONDELVE_API AWeapon : public AItem
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		bool bTwoHands = false;
-
 
 	public:
 	//for the getters and setters
