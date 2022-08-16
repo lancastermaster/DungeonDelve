@@ -3,7 +3,6 @@
 
 #include "PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
-#include "PlayerAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Item.h"
@@ -11,10 +10,15 @@
 #include "Weapon.h"
 #include "Components/SceneComponent.h"
 #include "Containers/Array.h"
+#include "HarmableInterface.h"
 
 
 // Sets default values
-APlayerCharacter::APlayerCharacter()
+APlayerCharacter::APlayerCharacter():
+
+Gold(0),
+bCanAttack(true),
+bDead(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,9 +28,6 @@ APlayerCharacter::APlayerCharacter()
 
 	MainHandSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Main Hand Spawn"));
 	MainHandSpawn -> SetupAttachment(Camera);
-
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
-	PlayerAttributes = CreateDefaultSubobject<UPlayerAttributeSet>(TEXT("PlayerAttributes"));
 }
 
 // Called when the game starts or when spawned
@@ -34,51 +35,12 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializeDefaultAttributesAbilities();
-
 	InitializeDerivedStats();
 	
 	Health = MaxHealth;
 	Magic = MaxMagic;
-	Gold = 0;
-	bCanAttack = true;
 
 	SpawnDefaultWeapon();
-}
-
-void APlayerCharacter::InitializeDefaultAttributesAbilities()
-{
-	if(AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this,this);
-
-		//apply default attributes
-		if(DefaultAttributeEffect)
-		{
-			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-			EffectContext.AddSourceObject(this);
-			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
-
-			if(SpecHandle.IsValid())
-			{
-				FActiveGameplayEffectHandle GEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			}
-		}
-
-		//give abilities
-		if(HasAuthority())
-		{
-			for(TSubclassOf<UGameplayAbility>& StartupAbility : DefaultAbilities)
-			{
-				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(StartupAbility.GetDefaultObject(),1,0));
-			}
-		}
-	}
-}
-
-UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent;
 }
 
 // Called every frame
@@ -91,8 +53,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 void APlayerCharacter::InitializeDerivedStats()
 {
-	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
-
 	MaxHealth = 50 + (Endurance * 10);
 	MaxMagic = 50 + (Intelligence * 10);
 	Defence = Agility;
@@ -279,6 +239,11 @@ void APlayerCharacter::StartAttackTimer()
 			GetWorldTimerManager().SetTimer(AttackTimer, this, &APlayerCharacter::ResetCanAttack, MainHand->GetAttackRate());
 		}
 	}
+}
+
+void APlayerCharacter::Harmed_Implementation(FHitResult HitResult)
+{
+
 }
 
 void APlayerCharacter::ResetCanAttack()

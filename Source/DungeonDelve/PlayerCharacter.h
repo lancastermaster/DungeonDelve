@@ -3,31 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemInterface.h"
 #include "DelveDamageType.h"
 #include "GameFramework/Character.h"
-#include "GameplayTagContainer.h"
-#include <GameplayEffectTypes.h>
 #include "Item.h"
 #include "EquipmentSlot.h"
+#include "HarmableInterface.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class DUNGEONDELVE_API APlayerCharacter : public ACharacter, public IAbilitySystemInterface
+class DUNGEONDELVE_API APlayerCharacter : public ACharacter, public IHarmableInterface
 {
 	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilties, meta = (AllowPrivateAccess = true))
-	class UAbilitySystemComponent* AbilitySystemComponent;
-
-	UPROPERTY()
-	class UPlayerAttributeSet* PlayerAttributes;
 
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
-
-	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -59,8 +49,6 @@ protected:
 	void SetInventoryItemReference(AItem* Item);
 
 	void InitializeDerivedStats();
-
-	void InitializeDefaultAttributesAbilities();
 
 	UFUNCTION(BlueprintCallable)
 	bool TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation);
@@ -141,6 +129,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	bool bTraceForItems;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	bool bDead;
+
 	int8 OverlappedItemCount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = true))
@@ -171,13 +162,7 @@ public:
 	FORCEINLINE int GetMaxMagic() {return MaxMagic;}
 	FORCEINLINE int GetGold() {return Gold;}
 
-	//Effect that initializes our default attributes
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Default")
-	TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
-
-	//Array of starting abilities
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Default")
-	TArray<TSubclassOf<class UGameplayAbility>> DefaultAbilities;
-
 	void SetGold(int Value);
+
+	virtual void Harmed_Implementation(FHitResult HitResult) override;
 };

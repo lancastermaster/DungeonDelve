@@ -8,7 +8,7 @@ public class DungeonDelve : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Paper2D", "GameplayAbilities", "GameplayTags", "GameplayTasks"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Paper2D", "GameplayAbilities", "GameplayTags", "GameplayTasks", "NavigationSystem", "AIModule"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 
