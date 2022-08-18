@@ -55,6 +55,8 @@ protected:
 
 	void TraceForItems();
 
+	void TraceForInteractables();
+
 	void EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip);
 
 	void PickupItem(AItem* ItemToPickup);
@@ -74,10 +76,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	class USceneComponent* MainHandSpawn;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
 	float RotationRate = 60.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
 	float InteractReach;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
@@ -129,8 +131,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	bool bTraceForItems;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
+	bool bInteractTrace;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	bool bDead;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	bool bPrimaryDown;
 
 	int8 OverlappedItemCount;
 
@@ -139,6 +147,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = true))
 	AItem* TraceHitItemLastFrame;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = true))
+	AActor* TraceHitActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	TSubclassOf<AItem>DefaultWeapon;
@@ -161,8 +172,13 @@ public:
 	FORCEINLINE int GetMagic() {return Magic;}
 	FORCEINLINE int GetMaxMagic() {return MaxMagic;}
 	FORCEINLINE int GetGold() {return Gold;}
+	FORCEINLINE bool GetDead() {return bDead;}
+	FORCEINLINE bool GetInteractTrace() {return bInteractTrace;}
+	FORCEINLINE bool GetItemTrace() {return bTraceForItems;}
 
 	void SetGold(int Value);
+	void SetInteractTrace(bool Trace);
+	void SetItemTrace(bool Trace);
 
 	virtual void Harmed_Implementation(FHitResult HitResult) override;
 };

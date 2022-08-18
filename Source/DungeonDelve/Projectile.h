@@ -23,6 +23,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	class UProjectileMovementComponent* MovementComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	class AActor* ProjectileOwner;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

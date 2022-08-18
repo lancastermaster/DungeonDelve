@@ -11,6 +11,7 @@
 #include "Components/SceneComponent.h"
 #include "Containers/Array.h"
 #include "HarmableInterface.h"
+#include "InteractInterface.h"
 
 
 // Sets default values
@@ -48,7 +49,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TraceForItems();
+	TraceForInteractables();
+	//TraceForItems();
+
+	if(bPrimaryDown)
+	{
+		StartAttackTimer();
+	}
 }
 
 void APlayerCharacter::InitializeDerivedStats()
@@ -77,7 +84,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//Bind Actions
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Interact);
 	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::PrimaryAction);
-	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SecondaryAction);
+	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::SecondaryAction);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("ToggleInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleInventory);
 	PlayerInputComponent->BindAction(TEXT("ToggleCharacterSheet"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleCharacterSheet);
@@ -105,20 +112,17 @@ void APlayerCharacter::LookRight(float AxisValue)
 
 void APlayerCharacter::PrimaryAction()
 {
-	if(bCanAttack)
-	{
-		StartAttackTimer();
-	}
+	bPrimaryDown = true;
 }
 
 void APlayerCharacter::SecondaryAction()
 {
-	
+	bPrimaryDown = false;
 }
 
 void APlayerCharacter::Interact()
 {
-	if(TraceHitItem != nullptr)
+	if(TraceHitItem)
 	{
 		PickupItem(TraceHitItem);
 	}
@@ -179,9 +183,36 @@ void APlayerCharacter::TraceForItems()
 	}
 }
 
+void APlayerCharacter::TraceForInteractables()
+{
+	if(!bInteractTrace)return;
+
+	FHitResult InteractTraceResult;
+	FVector InteractTraceLocation;
+	TraceUnderCrosshairs(InteractReach, InteractTraceResult, InteractTraceLocation);
+	if(InteractTraceResult.bBlockingHit)
+	{
+		if(InteractTraceResult.Actor.IsValid())
+		{
+			TraceHitActor = InteractTraceResult.Actor.Get();
+			TraceHitItem = Cast<AItem>(TraceHitActor);
+		}
+	}
+}
+
 void APlayerCharacter::SetGold(int Value)
 {
 	Gold += Value;
+}
+
+void APlayerCharacter::SetInteractTrace(bool Trace)
+{
+	bInteractTrace = Trace;
+}
+
+void APlayerCharacter::SetItemTrace(bool Trace)
+{
+	bTraceForItems = Trace;
 }
 
 void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip)
@@ -229,6 +260,7 @@ void APlayerCharacter::SpawnDefaultWeapon()
 
 void APlayerCharacter::StartAttackTimer()
 {
+	if(!bCanAttack)return;
 	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
 	{
 		AWeapon* MainHand = Cast<AWeapon>(EquippedItems[EEquipmentSlot::EES_MainHand]);
@@ -253,5 +285,5 @@ void APlayerCharacter::ResetCanAttack()
 
 void APlayerCharacter::Die()
 {
-
+	bDead = true;
 }

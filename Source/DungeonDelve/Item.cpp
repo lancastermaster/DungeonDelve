@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
 #include "PlayerCharacter.h"
+#include "InteractInterface.h"
 
 
 // Sets default values
@@ -46,6 +47,12 @@ void AItem::BeginPlay()
 	
 	SetItemProperties(EItemState::EIS_Pickup);
 	PickupWidget->SetVisibility(false);
+
+	PickupRadius->OnComponentBeginOverlap.AddDynamic(
+		this, &AItem::PickupRadiusOverlap);
+	
+	PickupRadius->OnComponentEndOverlap.AddDynamic(
+		this, &AItem::PickupRadiusEndOverlap);
 }
 
 // Called every frame
@@ -158,4 +165,36 @@ void AItem::SetItemProperties(EItemState State)
 void AItem::SetPlayerRef()
 {
 	PlayerRef = Cast<APlayerCharacter>(this->GetOwner());
+}
+
+void AItem::PickupRadiusOverlap(
+	UPrimitiveComponent* OverlappedComponent, 
+	AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, 
+	int32 OtherBodyIndex, 
+	bool bSweep, 
+	const FHitResult& SweepResult)
+{
+	auto Player = Cast<APlayerCharacter>(OtherActor);
+	if(Player)
+	{
+		Player->SetItemTrace(true);
+		Player->SetInteractTrace(true);
+		PickupWidget->SetVisibility(true);
+	}
+}
+
+void AItem::PickupRadiusEndOverlap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	auto Player = Cast<APlayerCharacter>(OtherActor);
+	if(Player)
+	{
+		Player->SetItemTrace(false);
+		Player->SetInteractTrace(false);
+		PickupWidget->SetVisibility(false);
+	}
 }

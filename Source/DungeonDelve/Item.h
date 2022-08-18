@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InteractInterface.h"
 #include "Item.generated.h"
 
 UENUM(BlueprintType)
@@ -50,7 +51,7 @@ class UDataTable* ItemRarityDataTable;
 */
 
 UCLASS()
-class DUNGEONDELVE_API AItem : public AActor
+class DUNGEONDELVE_API AItem : public AActor, public IInteractInterface
 {
 	GENERATED_BODY()
 	
@@ -70,6 +71,22 @@ protected:
 	void SetItemProperties(EItemState State);
 
 	void SetPlayerRef();
+
+	UFUNCTION()
+	void PickupRadiusOverlap(
+		UPrimitiveComponent* OverlappedComponent, 
+		AActor* OtherActor, 
+		UPrimitiveComponent* OtherComp, 
+		int32 OtherBodyIndex, 
+		bool bSweep, 
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void PickupRadiusEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
@@ -101,6 +118,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	int ItemValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
+	class UTexture2D* ItemIcon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	EItemState ItemState;

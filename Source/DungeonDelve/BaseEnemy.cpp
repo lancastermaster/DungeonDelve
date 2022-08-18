@@ -67,6 +67,7 @@ void ABaseEnemy::BeginPlay()
         EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bTargetInRange);
         EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), Player);
         EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("TargetPosition"), WorldPatrolPoint);
+        EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("PlayerDead"), Player->GetDead());
 
         EnemyController->RunBehaviorTree(GetBehaviorTree());
     }

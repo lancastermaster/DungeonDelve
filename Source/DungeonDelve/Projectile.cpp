@@ -20,6 +20,8 @@ AProjectile::AProjectile()
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ProjectileOwner = GetOwner();
 	
 }
 
