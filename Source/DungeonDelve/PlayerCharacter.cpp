@@ -2,16 +2,17 @@
 
 
 #include "PlayerCharacter.h"
-#include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Item.h"
 #include "Armor.h"
-#include "Weapon.h"
+#include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
 #include "Containers/Array.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "HarmableInterface.h"
 #include "InteractInterface.h"
+#include "Item.h"
+#include "Kismet/GameplayStatics.h"
+#include "Weapon.h"
+#include "Ability.h"
 
 
 // Sets default values
@@ -19,6 +20,7 @@ APlayerCharacter::APlayerCharacter():
 
 Gold(0),
 bCanAttack(true),
+bSecondaryReady(true),
 bDead(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -56,14 +58,21 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		StartAttackTimer();
 	}
+
+	if(bSecondaryDown)
+	{
+		StartSecondaryTimer();
+	}
 }
 
 void APlayerCharacter::InitializeDerivedStats()
 {
 	MaxHealth = 50 + (Endurance * 10);
 	MaxMagic = 50 + (Intelligence * 10);
-	Defence = Agility;
 	DamageBoost = Strength;
+	ResistanceMap.Add(EDamageType::EDT_Bludgeoning, Agility);
+	ResistanceMap.Add(EDamageType::EDT_Piercing, Agility);
+	ResistanceMap.Add(EDamageType::EDT_Slashing, Agility);
 	ResistanceMap.Add(EDamageType::EDT_Fire, Presence);
 	ResistanceMap.Add(EDamageType::EDT_Cold, Presence);
 	ResistanceMap.Add(EDamageType::EDT_Lightning, Presence);
@@ -83,8 +92,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	//Bind Actions
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Interact);
-	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::PrimaryAction);
-	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::SecondaryAction);
+	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::LeftClickDown);
+	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::LeftClickUp);
+	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::RightClickDown);
+	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::RightClickUp);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("ToggleInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleInventory);
 	PlayerInputComponent->BindAction(TEXT("ToggleCharacterSheet"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleCharacterSheet);
@@ -112,12 +123,32 @@ void APlayerCharacter::LookRight(float AxisValue)
 
 void APlayerCharacter::PrimaryAction()
 {
-	bPrimaryDown = true;
+	
 }
 
 void APlayerCharacter::SecondaryAction()
 {
+	
+}
+
+void APlayerCharacter::LeftClickDown()
+{
+	bPrimaryDown = true;
+}
+
+void APlayerCharacter::LeftClickUp()
+{
 	bPrimaryDown = false;
+}
+
+void APlayerCharacter::RightClickDown()
+{
+	bSecondaryDown = true;
+}
+
+void APlayerCharacter::RightClickUp()
+{
+	bSecondaryDown = false;
 }
 
 void APlayerCharacter::Interact()
@@ -247,6 +278,7 @@ void APlayerCharacter::PickupItem(AItem* ItemToPickup)
 
 void APlayerCharacter::SpawnDefaultWeapon()
 {
+	if(!DefaultWeapon)return;
 	AItem* SpawnedDefault = GetWorld()->SpawnActor<AItem>(DefaultWeapon);
 
 	Inventory.Add(SpawnedDefault);
@@ -271,6 +303,29 @@ void APlayerCharacter::StartAttackTimer()
 			GetWorldTimerManager().SetTimer(AttackTimer, this, &APlayerCharacter::ResetCanAttack, MainHand->GetAttackRate());
 		}
 	}
+	else
+	{
+		
+	}
+}
+
+void APlayerCharacter::StartSecondaryTimer()
+{
+	if(!bSecondaryReady)return;
+	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
+	{
+		AWeapon* MainHand = Cast<AWeapon>(EquippedItems[EEquipmentSlot::EES_MainHand]);
+		if(MainHand)
+		{
+			MainHand->SecondaryAbility();
+			bSecondaryReady = false;
+			GetWorldTimerManager().SetTimer(SecondaryAttackTimer, this, &APlayerCharacter::ResetSecondaryReady, MainHand->GetAttackRate());
+		}
+	}
+	else
+	{
+		
+	}
 }
 
 void APlayerCharacter::Harmed_Implementation(FHitResult HitResult)
@@ -281,6 +336,11 @@ void APlayerCharacter::Harmed_Implementation(FHitResult HitResult)
 void APlayerCharacter::ResetCanAttack()
 {
 	bCanAttack = true;
+}
+
+void APlayerCharacter::ResetSecondaryReady()
+{
+	bSecondaryReady = true;
 }
 
 void APlayerCharacter::Die()

@@ -27,6 +27,9 @@ class DUNGEONDELVE_API AWeapon : public AItem
 
 		UFUNCTION(BlueprintImplementableEvent)
 		void Attack();
+
+		UFUNCTION(BlueprintImplementableEvent)
+		void SecondaryAbility();
 		
 	protected:
 		AController* GetOwnerController() const;
@@ -54,6 +57,9 @@ class DUNGEONDELVE_API AWeapon : public AItem
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		TSubclassOf<class AProjectile> WeaponProjectile;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+		TSubclassOf<class AAbility> WeaponAbility;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 		EDamageType WeaponDamageType;

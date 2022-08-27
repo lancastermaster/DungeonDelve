@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "DelveDamageType.h"
-#include "GameFramework/Character.h"
-#include "Item.h"
 #include "EquipmentSlot.h"
+#include "GameFramework/Character.h"
 #include "HarmableInterface.h"
+#include "Item.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -36,6 +36,11 @@ protected:
 
 	void PrimaryAction();
 	void SecondaryAction();
+
+	void LeftClickDown();
+	void LeftClickUp();
+	void RightClickDown();
+	void RightClickUp();
 	
 	void Interact();
 
@@ -47,6 +52,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetInventoryItemReference(AItem* Item);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleAbility(AAbility* Ability);
 
 	void InitializeDerivedStats();
 
@@ -64,8 +72,10 @@ protected:
 	void SpawnDefaultWeapon();
 
 	void StartAttackTimer();
+	void StartSecondaryTimer();
 
 	void ResetCanAttack();
+	void ResetSecondaryReady();
 
 	void Die();
 
@@ -98,7 +108,7 @@ private:
 	int DamageBoost; //add Strength
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	int Defence; //Add Agility
+	int Defence;
 
 	//AbilityScores
 
@@ -140,6 +150,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	bool bPrimaryDown;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	bool bSecondaryDown;
+
 	int8 OverlappedItemCount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = true))
@@ -164,7 +177,13 @@ private:
 	bool bCanAttack;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	bool bSecondaryReady;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	FTimerHandle AttackTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	FTimerHandle SecondaryAttackTimer;
 	
 public:	
 	FORCEINLINE int GetHealth() {return Health;}

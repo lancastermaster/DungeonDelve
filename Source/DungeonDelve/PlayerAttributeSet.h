@@ -22,13 +22,29 @@ class DUNGEONDELVE_API UPlayerAttributeSet : public UAttributeSet
 
 		UPlayerAttributeSet();
 
-		UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+		UPROPERTY(BlueprintReadOnly, Category = "Derived Attributes")
 		FGameplayAttributeData Health;
 		ATTRIBUTE_ACCESSORS(UPlayerAttributeSet, Health);
 
-		UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+		UPROPERTY(BlueprintReadOnly, Category = "Derived Attributes")
+		FGameplayAttributeData MaxHealth;
+		ATTRIBUTE_ACCESSORS(UPlayerAttributeSet, MaxHealth);
+
+		UPROPERTY(BlueprintReadOnly, Category = "Derived Attributes")
 		FGameplayAttributeData Magic;
 		ATTRIBUTE_ACCESSORS(UPlayerAttributeSet, Magic);
+
+		UPROPERTY(BlueprintReadOnly, Category = "Derived Attributes")
+		FGameplayAttributeData MaxMagic;
+		ATTRIBUTE_ACCESSORS(UPlayerAttributeSet, MaxMagic);
+
+		UPROPERTY(BlueprintReadOnly, Category = "Derived Attributes")
+		FGameplayAttributeData DamageBoost;
+		ATTRIBUTE_ACCESSORS(UPlayerAttributeSet, DamageBoost);
+
+		UPROPERTY(BlueprintReadOnly, Category = "Derived Attributes")
+		FGameplayAttributeData Defence;
+		ATTRIBUTE_ACCESSORS(UPlayerAttributeSet, Defence);
 	protected:
 
 	private:
