@@ -60,6 +60,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
 	TSubclassOf<class AProjectile> EnemyProjectile;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
+	class UActorAbilities* EnemyAbilities;
+
 	class ADelveAIController* EnemyController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = true))

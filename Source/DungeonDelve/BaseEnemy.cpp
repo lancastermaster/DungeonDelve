@@ -13,6 +13,8 @@
 #include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
 #include "Projectile.h"
+#include "Ability.h"
+#include "ActorAbilities.h"
 
 
 ABaseEnemy::ABaseEnemy() :
@@ -28,6 +30,8 @@ bTargetInRange(false)
 
     ProjectileSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSpawn"));
     ProjectileSpawn -> SetupAttachment(GetSprite());
+
+    EnemyAbilities = CreateDefaultSubobject<UActorAbilities>(TEXT("Enemy Abilities"));
 }
 
 void ABaseEnemy::BeginPlay()

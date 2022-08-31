@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Weapon.h"
 #include "Ability.h"
+#include "ActorAbilities.h"
 
 
 // Sets default values
@@ -31,6 +32,8 @@ bDead(false)
 
 	MainHandSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Main Hand Spawn"));
 	MainHandSpawn -> SetupAttachment(Camera);
+
+	PlayerAbilities = CreateDefaultSubobject<UActorAbilities>(TEXT("Player Abilities"));
 }
 
 // Called when the game starts or when spawned
@@ -57,11 +60,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if(bPrimaryDown)
 	{
 		StartAttackTimer();
-	}
-
-	if(bSecondaryDown)
-	{
-		StartSecondaryTimer();
 	}
 }
 
@@ -94,8 +92,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Interact);
 	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::LeftClickDown);
 	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::LeftClickUp);
-	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::RightClickDown);
-	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::RightClickUp);
+	//PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::RightClickDown);
+	//PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::RightClickUp);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("ToggleInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleInventory);
 	PlayerInputComponent->BindAction(TEXT("ToggleCharacterSheet"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleCharacterSheet);
@@ -311,21 +309,7 @@ void APlayerCharacter::StartAttackTimer()
 
 void APlayerCharacter::StartSecondaryTimer()
 {
-	if(!bSecondaryReady)return;
-	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
-	{
-		AWeapon* MainHand = Cast<AWeapon>(EquippedItems[EEquipmentSlot::EES_MainHand]);
-		if(MainHand)
-		{
-			MainHand->SecondaryAbility();
-			bSecondaryReady = false;
-			GetWorldTimerManager().SetTimer(SecondaryAttackTimer, this, &APlayerCharacter::ResetSecondaryReady, MainHand->GetAttackRate());
-		}
-	}
-	else
-	{
-		
-	}
+	
 }
 
 void APlayerCharacter::Harmed_Implementation(FHitResult HitResult)

@@ -85,6 +85,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	class USceneComponent* MainHandSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
+	class UActorAbilities* PlayerAbilities;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
 	float RotationRate = 60.f;
