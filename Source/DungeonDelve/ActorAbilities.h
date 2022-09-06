@@ -22,7 +22,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
-	TMap<TSubclassOf<class AAbility>, bool> Abilities;
+	TArray<TSubclassOf<class AAbility>> Abilities;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
 	TSubclassOf<AAbility> SelectedAbility;

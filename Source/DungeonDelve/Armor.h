@@ -21,10 +21,13 @@ class DUNGEONDELVE_API AArmor : public AItem
 	protected:
 
 	private:
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
 		int Defence;
 
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
 		TMap<EDamageType, int32> ResistanceMap;
 
-		EEquipmentSlot* ArmorSlot;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
+		EEquipmentSlot ArmorSlot;
 	
 };

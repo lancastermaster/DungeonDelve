@@ -65,6 +65,7 @@ protected:
 
 	void TraceForInteractables();
 
+	UFUNCTION(BlueprintCallable)
 	void EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip);
 
 	void PickupItem(AItem* ItemToPickup);
@@ -77,7 +78,11 @@ protected:
 	void ResetCanAttack();
 	void ResetSecondaryReady();
 
+	UFUNCTION(BlueprintCallable)
 	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void UpdatePlayerDefence();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))

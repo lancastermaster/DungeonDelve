@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+#include "Ability.h"
+#include "ActorAbilities.h"
 #include "Armor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
@@ -12,8 +14,6 @@
 #include "Item.h"
 #include "Kismet/GameplayStatics.h"
 #include "Weapon.h"
-#include "Ability.h"
-#include "ActorAbilities.h"
 
 
 // Sets default values
@@ -330,4 +330,27 @@ void APlayerCharacter::ResetSecondaryReady()
 void APlayerCharacter::Die()
 {
 	bDead = true;
+}
+
+void APlayerCharacter::UpdatePlayerDefence()
+{
+	TArray<AItem*> ItemsToCheck;
+
+	Defence = 0;
+
+	EquippedItems.GenerateValueArray(ItemsToCheck);
+
+	for(AItem* Item : ItemsToCheck)
+	{
+		AArmor* ArmorItem = Cast<AArmor>(Item);
+
+		if(ArmorItem)
+		{
+			Defence += ArmorItem->Defence;
+		}
+	}
+	/*for(auto& Elem : EquippedItems)
+	{
+
+	}*/
 }
