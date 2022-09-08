@@ -81,9 +81,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void Die();
 
-	UFUNCTION(BlueprintCallable)
-	void UpdatePlayerDefence();
-
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
 	class UCameraComponent* Camera;

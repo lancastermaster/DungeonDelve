@@ -331,26 +331,3 @@ void APlayerCharacter::Die()
 {
 	bDead = true;
 }
-
-void APlayerCharacter::UpdatePlayerDefence()
-{
-	TArray<AItem*> ItemsToCheck;
-
-	Defence = 0;
-
-	EquippedItems.GenerateValueArray(ItemsToCheck);
-
-	for(AItem* Item : ItemsToCheck)
-	{
-		AArmor* ArmorItem = Cast<AArmor>(Item);
-
-		if(ArmorItem)
-		{
-			Defence += ArmorItem->Defence;
-		}
-	}
-	/*for(auto& Elem : EquippedItems)
-	{
-
-	}*/
-}
