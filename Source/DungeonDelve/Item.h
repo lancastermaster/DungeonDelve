@@ -62,6 +62,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetPlayerRef();
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -70,7 +72,6 @@ protected:
 
 	void SetItemProperties(EItemState State);
 
-	void SetPlayerRef();
 
 	UFUNCTION()
 	void PickupRadiusOverlap(

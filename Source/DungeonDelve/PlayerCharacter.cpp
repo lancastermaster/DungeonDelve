@@ -246,9 +246,23 @@ void APlayerCharacter::SetItemTrace(bool Trace)
 
 void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEquip)
 {
-	//EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Carried);
-	EquippedItems.Add(EquipmentSlot, ItemToEquip);
-	EquippedItems[EquipmentSlot]->SetItemState(EItemState::EIS_Equipped);
+
+	if(EquippedItems.Contains(EquipmentSlot))
+	{
+		AItem* OriginalItem = EquippedItems[EquipmentSlot];
+		
+		OriginalItem->SetItemState(EItemState::EIS_Carried);
+		EquippedItems[EquipmentSlot] = ItemToEquip;
+		ItemToEquip->SetItemState(EItemState::EIS_Equipped);
+		Inventory.Remove(ItemToEquip);
+		Inventory.Add(OriginalItem);
+	}
+	else
+	{
+		EquippedItems.Add(EquipmentSlot, ItemToEquip);
+		ItemToEquip->SetItemState(EItemState::EIS_Equipped);
+		Inventory.Remove(ItemToEquip);
+	}
 }
 
 void APlayerCharacter::PickupItem(AItem* ItemToPickup)
@@ -267,6 +281,7 @@ void APlayerCharacter::PickupItem(AItem* ItemToPickup)
 			ItemToPickup->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
 			ItemToPickup->SetOwner(this);
 			ItemToPickup->SetItemState(EItemState::EIS_Carried);
+			ItemToPickup->SetPlayerRef();
 
 			SetInventoryItemReference(ItemToPickup);
 		}

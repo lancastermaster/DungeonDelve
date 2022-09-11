@@ -100,16 +100,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Health;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int MaxHealth; //base value should be 50 + (Endurance * 10)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Magic;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int MaxMagic; //base value should be 50 + (Intelligence * 10)
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int DamageBoost; //add Strength
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
