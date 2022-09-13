@@ -267,6 +267,11 @@ void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEqui
 
 void APlayerCharacter::PickupItem(AItem* ItemToPickup)
 {
+	if(ItemToPickup->GetPickupSound())
+	{
+		UGameplayStatics::PlaySound2D(this, ItemToPickup->GetPickupSound());
+	}
+
 	if(ItemToPickup->GetItemName() == TEXT("Gold"))
 	{
 		SetGold(ItemToPickup->GetItemValue());

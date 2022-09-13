@@ -139,6 +139,7 @@ public:
 	FORCEINLINE EItemType GetItemType() const {return ItemType;}
 	FORCEINLINE FString GetItemName() const {return ItemName;}
 	FORCEINLINE APlayerCharacter* GetPlayerRef() const {return PlayerRef;}
+	FORCEINLINE USoundBase* GetPickupSound() const {return PickupSound;}
 
 	void SetItemState(EItemState NewState);
 

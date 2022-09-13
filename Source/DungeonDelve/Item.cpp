@@ -53,6 +53,8 @@ void AItem::BeginPlay()
 	
 	PickupRadius->OnComponentEndOverlap.AddDynamic(
 		this, &AItem::PickupRadiusEndOverlap);
+
+	PickupWidget->SetRelativeLocation(FVector(0.f,0.f,20.f));
 }
 
 // Called every frame
