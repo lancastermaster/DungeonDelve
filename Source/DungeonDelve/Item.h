@@ -89,6 +89,11 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
+	UFUNCTION(BlueprintCallable)
+	void ThrowItem();
+
+	void StopFalling();
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	class UWidgetComponent* PickupWidget;
@@ -132,6 +137,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	class APlayerCharacter* PlayerRef;
 
+	bool bFalling;
+	FTimerHandle ThrowItemTimer;
+
 public:
 	FORCEINLINE float GetItemWeight() const {return ItemWeight;}
 	FORCEINLINE int GetItemValue() const {return ItemValue;}
@@ -140,6 +148,7 @@ public:
 	FORCEINLINE FString GetItemName() const {return ItemName;}
 	FORCEINLINE APlayerCharacter* GetPlayerRef() const {return PlayerRef;}
 	FORCEINLINE USoundBase* GetPickupSound() const {return PickupSound;}
+	FORCEINLINE UPaperSpriteComponent* GetItemSprite() const {return ItemSprite;}
 
 	void SetItemState(EItemState NewState);
 

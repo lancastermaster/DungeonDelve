@@ -45,6 +45,9 @@ protected:
 	void Interact();
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void CallInteract(AActor* InteractActor);
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleInventory();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -80,6 +83,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void DropItem(AItem* ItemToDrop);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))

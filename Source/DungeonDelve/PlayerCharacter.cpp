@@ -55,7 +55,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	TraceForInteractables();
-	//TraceForItems();
+	TraceForItems();
 
 	if(bPrimaryDown)
 	{
@@ -155,6 +155,16 @@ void APlayerCharacter::Interact()
 	{
 		PickupItem(TraceHitItem);
 	}
+
+	if(TraceHitActor != nullptr)
+	{
+		CallInteract(TraceHitActor);
+	}
+
+	if(TraceHitActor == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("It's null, Jim."));
+	}
 }
 
 bool APlayerCharacter::TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation)
@@ -224,7 +234,6 @@ void APlayerCharacter::TraceForInteractables()
 		if(InteractTraceResult.Actor.IsValid())
 		{
 			TraceHitActor = InteractTraceResult.Actor.Get();
-			TraceHitItem = Cast<AItem>(TraceHitActor);
 		}
 	}
 }
@@ -350,4 +359,18 @@ void APlayerCharacter::ResetSecondaryReady()
 void APlayerCharacter::Die()
 {
 	bDead = true;
+}
+
+void APlayerCharacter::DropItem(AItem* ItemToDrop)
+{
+	if(Inventory.Contains(ItemToDrop))
+	{
+		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+
+		ItemToDrop->DetachFromActor(DetachmentTransformRules);
+		ItemToDrop->SetItemState(EItemState::EIS_Falling);
+		//ItemToDrop->ThrowItem();
+		Inventory.RemoveSingle(ItemToDrop);
+		ItemToDrop = nullptr;
+	}
 }

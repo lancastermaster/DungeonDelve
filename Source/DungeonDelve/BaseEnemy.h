@@ -29,6 +29,7 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	void DropLoot();
 	void Die();
 
 	UFUNCTION(BlueprintCallable)
@@ -67,6 +68,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = true))
 	class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
+	TArray<TSubclassOf<class AItem>> LootArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = true))
 	FVector PatrolPoint;

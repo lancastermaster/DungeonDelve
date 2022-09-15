@@ -15,6 +15,7 @@
 #include "Projectile.h"
 #include "Ability.h"
 #include "ActorAbilities.h"
+#include "Item.h"
 
 
 ABaseEnemy::ABaseEnemy() :
@@ -148,8 +149,19 @@ float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const & Dam
     return DamageAmount;
 }
 
+void ABaseEnemy::DropLoot()
+{
+    if(LootArray.Num() > 0)
+    {
+        int LootIndex = FMath::RandRange(0,LootArray.Num() - 1);
+
+        GetWorld()->SpawnActor<AItem>(LootArray[LootIndex], GetActorLocation(), GetActorRotation());
+    }
+}
+
 void ABaseEnemy::Die()
 {
+    DropLoot();
     Destroy();
 }
 

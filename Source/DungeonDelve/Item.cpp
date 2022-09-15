@@ -21,23 +21,23 @@ AItem::AItem()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root Comp"));
-	RootComponent = RootComp;
+	//RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root Comp"));
+	//RootComponent = RootComp;
 
 	ItemSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Item Sprite"));
-	ItemSprite -> SetupAttachment(RootComp);
+	RootComponent = ItemSprite;
 
 	ItemBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Item Box"));
-	ItemBox -> SetupAttachment(RootComp);
+	ItemBox -> SetupAttachment(RootComponent);
 
 	PickupRadius = CreateDefaultSubobject<USphereComponent>(TEXT("Pickup Radius"));
-	PickupRadius -> SetupAttachment(RootComp);
+	PickupRadius -> SetupAttachment(RootComponent);
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Pickup Widget"));
-	PickupWidget -> SetupAttachment(RootComp);
+	PickupWidget -> SetupAttachment(RootComponent);
 
 	ItemLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("Item Light"));
-	ItemLight -> SetupAttachment(RootComp);
+	ItemLight -> SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -147,7 +147,7 @@ void AItem::SetItemProperties(EItemState State)
 			ItemSprite->SetEnableGravity(true);
 			ItemSprite->SetVisibility(true);
 			ItemSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			ItemSprite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ItemSprite->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
 			PickupRadius->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			PickupRadius->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -199,4 +199,20 @@ void AItem::PickupRadiusEndOverlap(
 		Player->SetInteractTrace(false);
 		PickupWidget->SetVisibility(false);
 	}
+}
+
+void AItem::ThrowItem()
+{
+	FVector ItemRight{GetActorRightVector()};
+	FVector ImpulseDirection = ItemRight * 1000.f;
+	ItemSprite->AddImpulse(ImpulseDirection);
+
+	bFalling = true;
+	GetWorldTimerManager().SetTimer(ThrowItemTimer, this, &AItem::StopFalling, 1.0f);
+}
+
+void AItem::StopFalling()
+{
+	bFalling = false;
+	SetItemState(EItemState::EIS_Pickup);
 }
