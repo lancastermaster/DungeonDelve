@@ -51,15 +51,6 @@ void ABaseEnemy::BeginPlay()
         GetActorTransform(),
         PatrolPoint);
 
-    DrawDebugSphere(
-        GetWorld(),
-        WorldPatrolPoint,
-        25.f,
-        12,
-        FColor::Red,
-        true
-    );
-
     EnemyController = Cast<ADelveAIController>(GetController());
     APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 

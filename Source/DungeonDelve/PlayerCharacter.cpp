@@ -57,10 +57,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 	TraceForInteractables();
 	TraceForItems();
 
-	if(bPrimaryDown)
+	/*if(bPrimaryDown)
 	{
 		StartAttackTimer();
-	}
+	}*/
 }
 
 void APlayerCharacter::InitializeDerivedStats()
@@ -132,6 +132,7 @@ void APlayerCharacter::SecondaryAction()
 void APlayerCharacter::LeftClickDown()
 {
 	bPrimaryDown = true;
+	StartAttackTimer();
 }
 
 void APlayerCharacter::LeftClickUp()
@@ -156,12 +157,12 @@ void APlayerCharacter::Interact()
 		PickupItem(TraceHitItem);
 	}
 
-	if(TraceHitActor != nullptr)
+	if(TraceHitActor)
 	{
 		CallInteract(TraceHitActor);
 	}
 
-	if(TraceHitActor == nullptr)
+	if(TraceHitActor == nullptr && TraceHitItem == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("It's null, Jim."));
 	}
@@ -216,7 +217,7 @@ void APlayerCharacter::TraceForItems()
 	if(ItemTraceResult.bBlockingHit)
 	{
 		TraceHitItem = Cast<AItem>(ItemTraceResult.Actor);
-
+		
 		//store reference to HitItem for next frame
 		TraceHitItemLastFrame = TraceHitItem;
 	}
@@ -258,6 +259,8 @@ void APlayerCharacter::EquipItem(EEquipmentSlot EquipmentSlot, AItem* ItemToEqui
 
 	if(EquippedItems.Contains(EquipmentSlot))
 	{
+		//Move OriginalItem to the Inventory from its slot
+		//Move ItemToEquip from Inventory to the slot
 		AItem* OriginalItem = EquippedItems[EquipmentSlot];
 		
 		OriginalItem->SetItemState(EItemState::EIS_Carried);
@@ -280,11 +283,23 @@ void APlayerCharacter::PickupItem(AItem* ItemToPickup)
 	{
 		UGameplayStatics::PlaySound2D(this, ItemToPickup->GetPickupSound());
 	}
-
 	if(ItemToPickup->GetItemName() == TEXT("Gold"))
 	{
 		SetGold(ItemToPickup->GetItemValue());
-		UE_LOG(LogTemp, Warning, TEXT("%d Gold in Inventory"), Gold);
+		
+		ItemToPickup->Destroy();
+	}
+	else if(ItemToPickup->GetItemType() == EItemType::EIT_Ammo)
+	{
+		if(AmmoMap.Contains(ItemToPickup->GetItemName()))
+		{
+			AmmoMap[ItemToPickup->GetItemName()] += ItemToPickup->GetItemQuantity();
+		}
+		else
+		{
+			AmmoMap.Add(ItemToPickup->GetItemName(), ItemToPickup->GetItemQuantity());
+		}
+
 		ItemToPickup->Destroy();
 	}
 	else
@@ -314,7 +329,6 @@ void APlayerCharacter::SpawnDefaultWeapon()
 	SpawnedDefault->SetItemState(EItemState::EIS_Carried);
 			
 	EquipItem(EEquipmentSlot::EES_MainHand, SpawnedDefault);
-	//SpawnedDefault->SetItemState(EItemState::EIS_Equipped);
 }
 
 void APlayerCharacter::StartAttackTimer()

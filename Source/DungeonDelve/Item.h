@@ -126,6 +126,9 @@ private:
 	int ItemValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
+	int ItemQuantity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	class UTexture2D* ItemIcon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = true))
@@ -149,6 +152,7 @@ public:
 	FORCEINLINE APlayerCharacter* GetPlayerRef() const {return PlayerRef;}
 	FORCEINLINE USoundBase* GetPickupSound() const {return PickupSound;}
 	FORCEINLINE UPaperSpriteComponent* GetItemSprite() const {return ItemSprite;}
+	FORCEINLINE int GetItemQuantity() const {return ItemQuantity;}
 
 	void SetItemState(EItemState NewState);
 

@@ -184,6 +184,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TMap<EEquipmentSlot, AItem*> EquippedItems;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
+	TMap<FString, int> AmmoMap;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	bool bCanAttack;
 
