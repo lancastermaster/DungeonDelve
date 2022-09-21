@@ -51,7 +51,7 @@ class UDataTable* ItemRarityDataTable;
 */
 
 UCLASS()
-class DUNGEONDELVE_API AItem : public AActor, public IInteractInterface
+class DUNGEONDELVE_API AItem : public AActor
 {
 	GENERATED_BODY()
 	
@@ -130,6 +130,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	class UTexture2D* ItemIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = true))
+	FString ItemDescription;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = true))
 	EItemState ItemState;

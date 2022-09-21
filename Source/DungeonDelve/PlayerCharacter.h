@@ -212,6 +212,7 @@ public:
 	void SetGold(int Value);
 	void SetInteractTrace(bool Trace);
 	void SetItemTrace(bool Trace);
+	void SetDead(bool Death);
 
 	virtual void Harmed_Implementation(FHitResult HitResult) override;
 };

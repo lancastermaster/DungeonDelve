@@ -14,6 +14,7 @@
 #include "Item.h"
 #include "Kismet/GameplayStatics.h"
 #include "Weapon.h"
+#include "DelvePlayerController.h"
 
 
 // Sets default values
@@ -57,9 +58,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 	TraceForInteractables();
 	TraceForItems();
 
-	/*if(bPrimaryDown)
+	/*if(Health >= 0)
 	{
-		StartAttackTimer();
+		Die();
 	}*/
 }
 
@@ -155,6 +156,7 @@ void APlayerCharacter::Interact()
 	if(TraceHitItem)
 	{
 		PickupItem(TraceHitItem);
+		TraceHitItem = nullptr;
 	}
 
 	if(TraceHitActor)
@@ -373,6 +375,19 @@ void APlayerCharacter::ResetSecondaryReady()
 void APlayerCharacter::Die()
 {
 	bDead = true;
+
+	auto PC = Cast<ADelvePlayerController>(this->GetController());
+
+	if(PC)
+	{
+		PC->DisableInput(PC);
+		PC->bShowMouseCursor = true;
+	}
+}
+
+void APlayerCharacter::SetDead(bool Death)
+{
+	bDead = Death;
 }
 
 void APlayerCharacter::DropItem(AItem* ItemToDrop)

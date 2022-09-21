@@ -12,7 +12,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
 #include "PlayerCharacter.h"
-#include "InteractInterface.h"
 
 
 // Sets default values
