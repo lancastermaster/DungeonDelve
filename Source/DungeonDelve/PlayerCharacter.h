@@ -87,6 +87,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DropItem(AItem* ItemToDrop);
 
+	UFUNCTION(BlueprintCallable)
+	void PayManaCost(float ManaCost);
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
 	class UCameraComponent* Camera;

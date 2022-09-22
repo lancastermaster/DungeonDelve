@@ -403,3 +403,11 @@ void APlayerCharacter::DropItem(AItem* ItemToDrop)
 		ItemToDrop = nullptr;
 	}
 }
+
+void APlayerCharacter::PayManaCost(float ManaCost)
+{
+	if(Magic >= ManaCost)
+	{
+		Magic -= ManaCost;
+	}
+}
