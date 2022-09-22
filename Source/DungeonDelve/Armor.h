@@ -11,6 +11,24 @@
 /**
  * 
  */
+
+USTRUCT(BlueprintType)
+struct FArmorInfo
+{
+
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
+	int Defence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
+	TMap<EDamageType, int32> ResistanceMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
+	EEquipmentSlot ArmorSlot;
+};
+
+
 UCLASS()
 class DUNGEONDELVE_API AArmor : public AItem
 {
@@ -21,6 +39,10 @@ class DUNGEONDELVE_API AArmor : public AItem
 	protected:
 
 	private:
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
+		FArmorInfo ArmorInfo;
+
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
 		int Defence;
 

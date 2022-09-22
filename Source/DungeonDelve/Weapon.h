@@ -12,6 +12,33 @@
  * 
  */
 
+USTRUCT(BlueprintType)
+struct FWeaponInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	int Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	float AttackRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	float WeaponRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	bool bTwoHands = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX", meta = (AllowPrivateAccess = true))
+	class UParticleSystem* AttackParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	TSubclassOf<class AProjectile> WeaponProjectile;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	TSubclassOf<class AAbility> WeaponAbility;
+};
+
 UCLASS()
 class DUNGEONDELVE_API AWeapon : public AItem
 {
@@ -43,6 +70,9 @@ class DUNGEONDELVE_API AWeapon : public AItem
 		void ShootRaycast(USceneComponent* TraceStart, TSubclassOf<class UDamageType> RaycastDamageType);
 
 	private:
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+		FWeaponInfo WeaponInfo;
+
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
 		class USoundBase* AttackSound;
 
