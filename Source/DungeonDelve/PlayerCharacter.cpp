@@ -37,17 +37,25 @@ bDead(false)
 	PlayerAbilities = CreateDefaultSubobject<UActorAbilities>(TEXT("Player Abilities"));
 }
 
-// Called when the game starts or when spawned
-void APlayerCharacter::BeginPlay()
+void APlayerCharacter::PostInitializeComponents()
 {
-	Super::BeginPlay();
-
+	Super::PostInitializeComponents();
+	
 	InitializeDerivedStats();
 	
 	Health = MaxHealth;
 	Magic = MaxMagic;
 
 	SpawnDefaultWeapon();
+	SpawnSelectedAbility();
+}
+
+// Called when the game starts or when spawned
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	StartManaRegenTimer(ManaRegenSpeed);
 }
 
 // Called every frame
@@ -57,11 +65,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	TraceForInteractables();
 	TraceForItems();
-
-	/*if(Health >= 0)
-	{
-		Die();
-	}*/
 }
 
 void APlayerCharacter::InitializeDerivedStats()
@@ -98,6 +101,42 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("ToggleInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleInventory);
 	PlayerInputComponent->BindAction(TEXT("ToggleCharacterSheet"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleCharacterSheet);
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	int InDamage = FMath::RoundToInt(DamageAmount);
+	int DamageTaken = InDamage - Defence;
+
+	if(bHurtSoundCanPlay)
+	{
+		UGameplayStatics::PlaySound2D(this, PlayerHurtSound);
+		bHurtSoundCanPlay = false;
+		StartHurtTimer(1.f);
+	}
+
+	if(DamageTaken <= 0)return DamageTaken;
+	if(Health - DamageTaken <= 0)
+	{
+		Health = 0;
+		bDead = true;
+		Die();
+	}
+	else
+	{
+		Health -= DamageTaken;
+	}
+	return DamageTaken;
+}
+
+void APlayerCharacter::StartHurtTimer(float HurtTime)
+{
+	GetWorldTimerManager().SetTimer(PlayerHurtTimer, this, &APlayerCharacter::ResetHurtSound, HurtTime);
+}
+
+void APlayerCharacter::ResetHurtSound()
+{
+	bHurtSoundCanPlay = true;
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -333,6 +372,23 @@ void APlayerCharacter::SpawnDefaultWeapon()
 	EquipItem(EEquipmentSlot::EES_MainHand, SpawnedDefault);
 }
 
+void APlayerCharacter::SpawnSelectedAbility()
+{
+	if(!PlayerAbilities)return;
+	if(!PlayerAbilities->GetSelectedAbility())return;
+
+	AAbility* SpawnedAbility = GetWorld()->SpawnActorDeferred<AAbility>(
+		PlayerAbilities->GetSelectedAbility(), 
+		MainHandSpawn->GetComponentTransform(), 
+		this,
+		nullptr,
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+
+	SpawnedAbility->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
+
+	EquippedAbility = SpawnedAbility;
+}
+
 void APlayerCharacter::StartAttackTimer()
 {
 	if(!bCanAttack)return;
@@ -410,4 +466,29 @@ void APlayerCharacter::PayManaCost(float ManaCost)
 	{
 		Magic -= ManaCost;
 	}
+}
+
+void APlayerCharacter::GainMana()
+{
+	if(Magic < MaxMagic)
+	{
+		if(Magic + ManaRegen >= MaxMagic)
+		{
+			Magic = MaxMagic;
+		}
+		else
+		{
+			Magic += ManaRegen;
+		}
+	}
+}
+
+void APlayerCharacter::StartManaRegenTimer(float RegenRate)
+{
+	GetWorldTimerManager().SetTimer(ManaRegenTimer, this, &APlayerCharacter::GainMana, RegenRate, true);
+}
+
+void APlayerCharacter::FillPlayerInfo()
+{
+
 }

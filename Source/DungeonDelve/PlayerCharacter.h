@@ -10,6 +10,70 @@
 #include "Item.h"
 #include "PlayerCharacter.generated.h"
 
+USTRUCT(BlueprintType) //Don't use this for everything - use for saving
+struct FPlayerInfo
+{
+	GENERATED_BODY()
+
+	//AbilityScores
+
+	//used to calculate damage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
+	int Strength;
+
+	//increases health
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
+	int Endurance;
+
+	//increases Defence
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
+	int Agility;
+
+	//increases Magic
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
+	int Intelligence;
+
+	//increases Magic, Fire, Lightning, and Cold resists
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
+	int Presence;
+
+	
+	//Derived Stats
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	TMap<EDamageType, int32> ResistanceMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	int Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	int MaxHealth; //base value should be 50 + (Endurance * 10)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	int Magic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	int MaxMagic; //base value should be 50 + (Intelligence * 10)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	int DamageBoost; //add Strength
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
+	int Defence;
+
+	//Inventory
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
+	TArray<AItem*> Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
+	TMap<EEquipmentSlot, AItem*> EquippedItems;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
+	TMap<FString, int> AmmoMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
+	int Gold;
+};
+
 UCLASS()
 class DUNGEONDELVE_API APlayerCharacter : public ACharacter, public IHarmableInterface
 {
@@ -29,6 +93,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PostInitializeComponents() override;
+
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void LookUp(float AxisValue);
@@ -43,6 +109,8 @@ protected:
 	void RightClickUp();
 	
 	void Interact();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void CallInteract(AActor* InteractActor);
@@ -75,6 +143,8 @@ protected:
 
 	void SpawnDefaultWeapon();
 
+	void SpawnSelectedAbility();
+
 	void StartAttackTimer();
 	void StartSecondaryTimer();
 
@@ -90,6 +160,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void PayManaCost(float ManaCost);
 
+	void FillPlayerInfo();
+
+	void GainMana();
+
+	void StartManaRegenTimer(float RegenRate);
+
+	void ResetHurtSound();
+
+	void StartHurtTimer(float HurtTime);
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
 	class UCameraComponent* Camera;
@@ -99,6 +179,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
 	class UActorAbilities* PlayerAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
+	class USoundBase* PlayerHurtSound;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
 	float RotationRate = 60.f;
@@ -123,6 +206,13 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Defence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana Regen", meta = (AllowPrivateAccess = true))
+	int ManaRegen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana Regen", meta = (AllowPrivateAccess = true))
+	int ManaRegenSpeed;
+	
 
 	//AbilityScores
 
@@ -190,6 +280,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TMap<FString, int> AmmoMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
+	AAbility* EquippedAbility;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	bool bCanAttack;
 
@@ -201,6 +294,15 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	FTimerHandle SecondaryAttackTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	FTimerHandle ManaRegenTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	FTimerHandle PlayerHurtTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
+	bool bHurtSoundCanPlay;
 	
 public:	
 	FORCEINLINE int GetHealth() {return Health;}
