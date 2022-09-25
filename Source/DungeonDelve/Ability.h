@@ -6,6 +6,33 @@
 #include "GameFramework/Actor.h"
 #include "Ability.generated.h"
 
+USTRUCT(BlueprintType)
+struct FAbilityInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	FText AbilityName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	FText AbilityDescription;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	float ManaCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	float CastTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	float CoolDown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	float Duration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	class UTexture2D* ItemIcon;
+};
+
 UCLASS()
 class DUNGEONDELVE_API AAbility : public AActor
 {
@@ -32,9 +59,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	FAbilityInfo AbilityInfo;
+
+	bool bCancelAbility;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE FAbilityInfo GetAbilityInfo() {return AbilityInfo;}
 };

@@ -34,7 +34,20 @@ bDead(false)
 	MainHandSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Main Hand Spawn"));
 	MainHandSpawn -> SetupAttachment(Camera);
 
+	ProjectileSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile Spawn"));
+	ProjectileSpawn ->SetupAttachment(Camera);
+
 	PlayerAbilities = CreateDefaultSubobject<UActorAbilities>(TEXT("Player Abilities"));
+}
+
+void APlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	
+	InitializeDerivedStats();
+	
+	Health = MaxHealth;
+	Magic = MaxMagic;
 }
 
 // Called when the game starts or when spawned
@@ -42,12 +55,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializeDerivedStats();
-	
-	Health = MaxHealth;
-	Magic = MaxMagic;
-
 	SpawnDefaultWeapon();
+	SpawnSelectedAbility();
+	StartManaRegenTimer(ManaRegenSpeed);
 }
 
 // Called every frame
@@ -57,11 +67,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	TraceForInteractables();
 	TraceForItems();
-
-	/*if(Health >= 0)
-	{
-		Die();
-	}*/
 }
 
 void APlayerCharacter::InitializeDerivedStats()
@@ -93,11 +98,47 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Interact);
 	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::LeftClickDown);
 	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::LeftClickUp);
-	//PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::RightClickDown);
-	//PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::RightClickUp);
+	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Pressed, this, &APlayerCharacter::RightClickDown);
+	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), EInputEvent::IE_Released, this, &APlayerCharacter::RightClickUp);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("ToggleInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleInventory);
 	PlayerInputComponent->BindAction(TEXT("ToggleCharacterSheet"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleCharacterSheet);
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	int InDamage = FMath::RoundToInt(DamageAmount);
+	int DamageTaken = InDamage - Defence;
+
+	if(bHurtSoundCanPlay)
+	{
+		UGameplayStatics::PlaySound2D(this, PlayerHurtSound);
+		bHurtSoundCanPlay = false;
+		StartHurtTimer(1.f);
+	}
+
+	if(DamageTaken <= 0)return DamageTaken;
+	if(Health - DamageTaken <= 0)
+	{
+		Health = 0;
+		bDead = true;
+		Die();
+	}
+	else
+	{
+		Health -= DamageTaken;
+	}
+	return DamageTaken;
+}
+
+void APlayerCharacter::StartHurtTimer(float HurtTime)
+{
+	GetWorldTimerManager().SetTimer(PlayerHurtTimer, this, &APlayerCharacter::ResetHurtSound, HurtTime);
+}
+
+void APlayerCharacter::ResetHurtSound()
+{
+	bHurtSoundCanPlay = true;
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -127,7 +168,8 @@ void APlayerCharacter::PrimaryAction()
 
 void APlayerCharacter::SecondaryAction()
 {
-	
+	PayManaCost(EquippedAbility->GetAbilityInfo().ManaCost);
+	EquippedAbility->BeginActivation();
 }
 
 void APlayerCharacter::LeftClickDown()
@@ -144,6 +186,7 @@ void APlayerCharacter::LeftClickUp()
 void APlayerCharacter::RightClickDown()
 {
 	bSecondaryDown = true;
+	StartSecondaryTimer();
 }
 
 void APlayerCharacter::RightClickUp()
@@ -333,6 +376,24 @@ void APlayerCharacter::SpawnDefaultWeapon()
 	EquipItem(EEquipmentSlot::EES_MainHand, SpawnedDefault);
 }
 
+void APlayerCharacter::SpawnSelectedAbility()
+{
+	if(!PlayerAbilities)return;
+	if(!PlayerAbilities->GetSelectedAbility())return;
+
+	AAbility* SpawnedAbility = GetWorld()->SpawnActorDeferred<AAbility>(
+		PlayerAbilities->GetSelectedAbility(), 
+		ProjectileSpawn->GetRelativeTransform(), 
+		this,
+		this,
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+	SpawnedAbility->AttachToComponent(ProjectileSpawn, FAttachmentTransformRules::KeepWorldTransform);
+	SpawnedAbility->SetOwner(this);
+
+	EquippedAbility = SpawnedAbility;
+}
+
 void APlayerCharacter::StartAttackTimer()
 {
 	if(!bCanAttack)return;
@@ -354,7 +415,23 @@ void APlayerCharacter::StartAttackTimer()
 
 void APlayerCharacter::StartSecondaryTimer()
 {
+	if(!bSecondaryReady)return;
+	if(!EquippedAbility)return;
 	
+	if(Magic - (EquippedAbility->GetAbilityInfo().ManaCost) >= 0)
+	{
+		SecondaryAction();
+		bSecondaryReady = false;
+
+		GetWorldTimerManager().SetTimer(
+			SecondaryAttackTimer, 
+			this, 
+			&APlayerCharacter::ResetSecondaryReady, 
+			EquippedAbility->GetAbilityInfo().CoolDown
+			);
+
+	}
+
 }
 
 void APlayerCharacter::Harmed_Implementation(FHitResult HitResult)
@@ -402,4 +479,62 @@ void APlayerCharacter::DropItem(AItem* ItemToDrop)
 		Inventory.RemoveSingle(ItemToDrop);
 		ItemToDrop = nullptr;
 	}
+}
+
+void APlayerCharacter::PayManaCost(float ManaCost)
+{
+	if(Magic >= ManaCost)
+	{
+		Magic -= ManaCost;
+	}
+}
+
+void APlayerCharacter::GainMana()
+{
+	if(Magic < MaxMagic)
+	{
+		if(Magic + ManaRegen >= MaxMagic)
+		{
+			Magic = MaxMagic;
+		}
+		else
+		{
+			Magic += ManaRegen;
+		}
+	}
+}
+
+void APlayerCharacter::StartManaRegenTimer(float RegenRate)
+{
+	GetWorldTimerManager().SetTimer(ManaRegenTimer, this, &APlayerCharacter::GainMana, RegenRate, true);
+}
+
+void APlayerCharacter::FillPlayerInfo()
+{
+	//Ability Scores
+	PlayerInfo.Strength = Strength;
+	PlayerInfo.Endurance = Endurance;
+	PlayerInfo.Agility = Agility;
+	PlayerInfo.Intelligence = Intelligence;
+	PlayerInfo.Presence = Presence;
+	
+	//Derived Stats
+	PlayerInfo.Health = Health;
+	PlayerInfo.MaxHealth = MaxHealth;
+	PlayerInfo.Magic = Magic;
+	PlayerInfo.MaxMagic = Magic;
+	PlayerInfo.DamageBoost = DamageBoost;
+	PlayerInfo.ResistanceMap = ResistanceMap;
+
+	//Inventory
+	PlayerInfo.Inventory = Inventory;
+	PlayerInfo.EquippedItems = EquippedItems;
+	PlayerInfo.AmmoMap = AmmoMap;
+	PlayerInfo.Gold = Gold;
+
+	//Combat
+	PlayerInfo.Defence = Defence;
+	PlayerInfo.EquippedAbility = EquippedAbility;
+	PlayerInfo.ManaRegen = ManaRegen;
+	PlayerInfo.ManaRegenSpeed = ManaRegenSpeed;
 }
