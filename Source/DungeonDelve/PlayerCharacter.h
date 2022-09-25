@@ -60,6 +60,12 @@ struct FPlayerInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Defence;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
+	int ManaRegen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
+	int ManaRegenSpeed;
+
 	//Inventory
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	TArray<AItem*> Inventory;
@@ -72,6 +78,9 @@ struct FPlayerInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	int Gold;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
+	AAbility* EquippedAbility;
 };
 
 UCLASS()
@@ -143,6 +152,7 @@ protected:
 
 	void SpawnDefaultWeapon();
 
+	UFUNCTION(BlueprintCallable)
 	void SpawnSelectedAbility();
 
 	void StartAttackTimer();
@@ -177,11 +187,17 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
 	class USceneComponent* MainHandSpawn;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = true))
+	USceneComponent* ProjectileSpawn;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
 	class UActorAbilities* PlayerAbilities;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SFX", meta = (AllowPrivateAccess = true))
 	class USoundBase* PlayerHurtSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Saving", meta = (AllowPrivateAccess = true))
+	FPlayerInfo PlayerInfo;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
 	float RotationRate = 60.f;
@@ -313,6 +329,7 @@ public:
 	FORCEINLINE bool GetDead() {return bDead;}
 	FORCEINLINE bool GetInteractTrace() {return bInteractTrace;}
 	FORCEINLINE bool GetItemTrace() {return bTraceForItems;}
+	FORCEINLINE USceneComponent* GetProjectileSpawn() {return ProjectileSpawn;}
 
 	void SetGold(int Value);
 	void SetInteractTrace(bool Trace);
