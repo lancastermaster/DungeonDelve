@@ -31,6 +31,9 @@ struct FAbilityInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
 	class UTexture2D* ItemIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	float Magnitude;
 };
 
 UCLASS()
