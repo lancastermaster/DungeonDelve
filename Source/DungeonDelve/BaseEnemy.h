@@ -108,6 +108,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	FTimerHandle AttackTimer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = true))
+	class FGameplayTagContainer TagContainer;
 public:
 
 	virtual void Harmed_Implementation(FHitResult HitResult) override;

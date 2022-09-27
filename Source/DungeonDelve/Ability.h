@@ -65,7 +65,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
 	FAbilityInfo AbilityInfo;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Info", meta = (AllowPrivateAccess = true))
 	bool bCancelAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	bool bChargedAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = true))
+	class FGameplayTagContainer TagContainer;
 
 public:	
 	// Called every frame

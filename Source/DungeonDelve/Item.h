@@ -148,6 +148,9 @@ private:
 	bool bFalling;
 	FTimerHandle ThrowItemTimer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = true))
+	class FGameplayTagContainer TagContainer;
+
 public:
 	FORCEINLINE float GetItemWeight() const {return ItemWeight;}
 	FORCEINLINE int GetItemValue() const {return ItemValue;}
