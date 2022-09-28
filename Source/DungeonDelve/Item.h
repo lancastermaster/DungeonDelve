@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "InteractInterface.h"
+#include "GameplayTagContainer.h"
 #include "Item.generated.h"
 
 UENUM(BlueprintType)
@@ -149,7 +150,7 @@ private:
 	FTimerHandle ThrowItemTimer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = true))
-	class FGameplayTagContainer TagContainer;
+	FGameplayTagContainer TagContainer;
 
 public:
 	FORCEINLINE float GetItemWeight() const {return ItemWeight;}

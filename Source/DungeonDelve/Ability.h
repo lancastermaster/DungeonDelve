@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "Ability.generated.h"
 
 USTRUCT(BlueprintType)
@@ -72,7 +73,7 @@ private:
 	bool bChargedAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = true))
-	class FGameplayTagContainer TagContainer;
+	FGameplayTagContainer TagContainer;
 
 public:	
 	// Called every frame
