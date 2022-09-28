@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "Ability.generated.h"
 
 USTRUCT(BlueprintType)
@@ -31,6 +32,9 @@ struct FAbilityInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
 	class UTexture2D* ItemIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	float Magnitude;
 };
 
 UCLASS()
@@ -62,7 +66,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
 	FAbilityInfo AbilityInfo;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Info", meta = (AllowPrivateAccess = true))
 	bool bCancelAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info", meta = (AllowPrivateAccess = true))
+	bool bChargedAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = true))
+	FGameplayTagContainer TagContainer;
 
 public:	
 	// Called every frame
