@@ -20,6 +20,7 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter():
 
+StatPoints(0),
 Gold(0),
 bCanAttack(true),
 bSecondaryReady(true),
@@ -44,7 +45,7 @@ void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	InitializeDerivedStats();
+	CalculateDerivedStats();
 	
 	Health = MaxHealth;
 	Magic = MaxMagic;
@@ -69,18 +70,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 	TraceForItems();
 }
 
-void APlayerCharacter::InitializeDerivedStats()
+void APlayerCharacter::CalculateDerivedStats()
 {
 	MaxHealth = 50 + (Endurance * 10);
 	MaxMagic = 50 + (Intelligence * 10);
-	DamageBoost = Strength;
-	ResistanceMap.Add(EDamageType::EDT_Bludgeoning, Agility);
-	ResistanceMap.Add(EDamageType::EDT_Piercing, Agility);
-	ResistanceMap.Add(EDamageType::EDT_Slashing, Agility);
-	ResistanceMap.Add(EDamageType::EDT_Fire, Presence);
-	ResistanceMap.Add(EDamageType::EDT_Cold, Presence);
-	ResistanceMap.Add(EDamageType::EDT_Lightning, Presence);
-	ResistanceMap.Add(EDamageType::EDT_Magic, Presence);
+	DamageBoost = FMath::RoundToInt(Strength * .01f);
+	Defence = FMath::RoundToInt(Agility/5);
 }
 
 // Called to bind functionality to input
@@ -516,7 +511,6 @@ void APlayerCharacter::FillPlayerInfo()
 	PlayerInfo.Endurance = Endurance;
 	PlayerInfo.Agility = Agility;
 	PlayerInfo.Intelligence = Intelligence;
-	PlayerInfo.Presence = Presence;
 	
 	//Derived Stats
 	PlayerInfo.Health = Health;

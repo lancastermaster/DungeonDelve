@@ -33,10 +33,6 @@ struct FPlayerInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Intelligence;
 
-	//increases Magic, Fire, Lightning, and Cold resists
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
-	int Presence;
-
 	
 	//Derived Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
@@ -55,7 +51,7 @@ struct FPlayerInfo
 	int MaxMagic; //base value should be 50 + (Intelligence * 10)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	int DamageBoost; //add Strength
+	float DamageBoost; //is equal to .01 * Strength - each point grants a 1% boost to weapon damage
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Defence;
@@ -136,7 +132,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleAbility(AAbility* Ability);
 
-	void InitializeDerivedStats();
+	UFUNCTION(BlueprintCallable)
+	void CalculateDerivedStats();
 
 	UFUNCTION(BlueprintCallable)
 	bool TraceUnderCrosshairs(float TraceRange, FHitResult& OutHitResult, FVector& OutHitLocation);
@@ -205,6 +202,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = true))
 	float InteractReach;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Name", meta = (AllowPrivateAccess = true))
+	FString CharacterName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Health;
 
@@ -218,7 +218,7 @@ private:
 	int MaxMagic; //base value should be 50 + (Intelligence * 10)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
-	int DamageBoost; //add Strength
+	float DamageBoost; //add Strength
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Derived Stats", meta = (AllowPrivateAccess = true))
 	int Defence;
@@ -248,9 +248,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
 	int Intelligence;
 
-	//increases Magic, Fire, Lightning, and Cold resists
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Scores", meta = (AllowPrivateAccess = true))
-	int Presence;
+	int StatPoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = true))
 	int Gold;
