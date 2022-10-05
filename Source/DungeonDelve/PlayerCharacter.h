@@ -77,6 +77,12 @@ struct FPlayerInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = true))
 	AAbility* EquippedAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
+	TArray<TSubclassOf<class AAbility>> Abilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AAbility> SelectedAbility;
 };
 
 UCLASS()
@@ -167,7 +173,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void PayManaCost(float ManaCost);
 
+	UFUNCTION(BlueprintCallable)
 	void FillPlayerInfo();
+
+	UFUNCTION(BlueprintCallable)
+	void PullPlayerInfo();
 
 	void GainMana();
 
@@ -176,6 +186,12 @@ protected:
 	void ResetHurtSound();
 
 	void StartHurtTimer(float HurtTime);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	void LoadGame();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
@@ -318,6 +334,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	bool bHurtSoundCanPlay;
+
+	class UDelveSaveGame* CharacterSave;
 	
 public:	
 	FORCEINLINE int GetHealth() {return Health;}

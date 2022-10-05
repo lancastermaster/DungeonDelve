@@ -32,3 +32,7 @@ void UActorAbilities::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
+void UActorAbilities::AddAbility(TSubclassOf<AAbility> AbilityToAdd)
+{
+	Abilities.Add(AbilityToAdd);
+}

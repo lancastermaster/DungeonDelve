@@ -31,7 +31,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	TArray<TSubclassOf<AAbility>> GetLearnedAbilities() {return Abilities;}
+
 	FORCEINLINE TSubclassOf<AAbility> GetSelectedAbility() {return SelectedAbility;}
 
-		
+	void SetSelectedAbility(TSubclassOf<AAbility> AbilityToSet) {SelectedAbility = AbilityToSet;}
+	void SetAbilities(TArray<TSubclassOf<class AAbility>> AbilitiesToLearn) {Abilities = AbilitiesToLearn;}
+	void AddAbility(TSubclassOf<AAbility> AbilityToAdd);
 };

@@ -15,6 +15,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Weapon.h"
 #include "DelvePlayerController.h"
+#include "DelveGameInstance.h"
+#include "DelveSaveGame.h"
 
 
 // Sets default values
@@ -44,11 +46,6 @@ bDead(false)
 void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
-	CalculateDerivedStats();
-	
-	Health = MaxHealth;
-	Magic = MaxMagic;
 }
 
 // Called when the game starts or when spawned
@@ -56,6 +53,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//LoadGame();
 	SpawnDefaultWeapon();
 	SpawnSelectedAbility();
 	StartManaRegenTimer(ManaRegenSpeed);
@@ -360,6 +358,7 @@ void APlayerCharacter::PickupItem(AItem* ItemToPickup)
 
 void APlayerCharacter::SpawnDefaultWeapon()
 {
+	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))return;
 	if(!DefaultWeapon)return;
 	AItem* SpawnedDefault = GetWorld()->SpawnActor<AItem>(DefaultWeapon);
 
@@ -424,9 +423,7 @@ void APlayerCharacter::StartSecondaryTimer()
 			&APlayerCharacter::ResetSecondaryReady, 
 			EquippedAbility->GetAbilityInfo().CoolDown
 			);
-
 	}
-
 }
 
 void APlayerCharacter::Harmed_Implementation(FHitResult HitResult)
@@ -518,17 +515,126 @@ void APlayerCharacter::FillPlayerInfo()
 	PlayerInfo.Magic = Magic;
 	PlayerInfo.MaxMagic = Magic;
 	PlayerInfo.DamageBoost = DamageBoost;
-	PlayerInfo.ResistanceMap = ResistanceMap;
+
+	for(auto Resist : ResistanceMap)
+	{
+		PlayerInfo.ResistanceMap.Add(Resist.Key, Resist.Value);
+	}
 
 	//Inventory
-	PlayerInfo.Inventory = Inventory;
-	PlayerInfo.EquippedItems = EquippedItems;
+	for(AItem* Item : Inventory)
+	{
+		PlayerInfo.Inventory.Add(Item);
+	}
+
+	for(auto Equipped : EquippedItems)
+	{
+		PlayerInfo.EquippedItems.Add(Equipped.Key, Equipped.Value);
+	}
+	
 	PlayerInfo.AmmoMap = AmmoMap;
 	PlayerInfo.Gold = Gold;
 
 	//Combat
 	PlayerInfo.Defence = Defence;
-	PlayerInfo.EquippedAbility = EquippedAbility;
+	PlayerInfo.SelectedAbility = PlayerAbilities->GetSelectedAbility();
+
+	for(TSubclassOf<AAbility> AbilityClass : PlayerAbilities->GetLearnedAbilities())
+	{
+		PlayerInfo.Abilities.Add(AbilityClass);
+	}
+
 	PlayerInfo.ManaRegen = ManaRegen;
 	PlayerInfo.ManaRegenSpeed = ManaRegenSpeed;
+}
+
+void APlayerCharacter::PullPlayerInfo()
+{
+	//Ability Scores
+		Strength = PlayerInfo.Strength;
+		Endurance = PlayerInfo.Endurance;
+		Agility = PlayerInfo.Agility;
+		Intelligence = PlayerInfo.Intelligence;
+
+		//Derived Stats
+		Health = PlayerInfo.Health;
+		MaxHealth = PlayerInfo.MaxHealth;
+		Magic = PlayerInfo.Magic;
+		MaxMagic = PlayerInfo.MaxMagic;
+		DamageBoost = PlayerInfo.DamageBoost;
+
+		for(auto Resist : PlayerInfo.ResistanceMap)
+		{
+			ResistanceMap.Add(Resist.Key, Resist.Value);
+		}
+
+		//Inventory
+
+		for(AItem* Item : PlayerInfo.Inventory)
+		{
+			Inventory.Add(Item);
+		}
+
+		for(auto Equipped : PlayerInfo.EquippedItems)
+		{
+			EquippedItems.Add(Equipped.Key, Equipped.Value);
+		}
+
+		AmmoMap = PlayerInfo.AmmoMap;
+		Gold = PlayerInfo.Gold;
+
+		//Combat
+		Defence = PlayerInfo.Defence;
+		PlayerAbilities->SetSelectedAbility(PlayerInfo.SelectedAbility);
+		ManaRegen = PlayerInfo.ManaRegen;
+		ManaRegenSpeed = PlayerInfo.ManaRegenSpeed;
+
+		for(TSubclassOf<AAbility> AbilityClass : PlayerInfo.Abilities)
+		{
+			PlayerAbilities -> AddAbility(AbilityClass);
+		}
+}
+
+void APlayerCharacter::SaveGame()
+{
+	//UDelveGameInstance* GameInstance = Cast<UDelveGameInstance>(UGameplayStatics::CreateSaveGameObject(UDelveSaveGame::StaticClass()));
+	UDelveGameInstance* GameInstance = Cast<UDelveGameInstance>(GetGameInstance());
+
+	UDelveSaveGame* SaveGameInstance = GameInstance->GetSaveGame();
+
+	FillPlayerInfo();
+
+	if(!SaveGameInstance)
+	{
+		SaveGameInstance = Cast<UDelveSaveGame>(UGameplayStatics::CreateSaveGameObject(UDelveSaveGame::StaticClass()));
+	}
+
+	SaveGameInstance->SetInfoToSave(PlayerInfo);
+	UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, GameInstance->GetSaveSlot(), 0);
+}
+
+void APlayerCharacter::LoadGame()
+{
+	UDelveGameInstance* GameInstance = Cast<UDelveGameInstance>(GetGameInstance());
+
+	CharacterSave = Cast<UDelveSaveGame>(UGameplayStatics::LoadGameFromSlot(GameInstance->GetSaveSlot(), 0));
+	if(CharacterSave)
+	{
+		PlayerInfo = CharacterSave->GetPlayerInfoToLoad();
+
+		PullPlayerInfo();
+
+		UE_LOG(LogTemp, Warning, TEXT("Loading was successful."));
+	}
+	else
+	{
+		UDelveSaveGame* LoadedGame = Cast<UDelveSaveGame>(UGameplayStatics::CreateSaveGameObject(UDelveSaveGame::StaticClass()));
+		CharacterSave = LoadedGame;
+
+		UE_LOG(LogTemp, Warning, TEXT("Loading not successful."));
+
+		CalculateDerivedStats();
+		Health = MaxHealth;
+		Magic = MaxMagic;
+	}
 }
