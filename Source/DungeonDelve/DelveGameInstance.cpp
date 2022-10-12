@@ -2,10 +2,12 @@
 
 
 #include "DelveGameInstance.h"
+#include "PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
-/*void UDelveGameInstance::Init()
+void UDelveGameInstance::Init()
 {
     Super::Init();
 
-    
-}*/
+    PlayerRef = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+}

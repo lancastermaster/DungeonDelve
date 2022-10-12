@@ -162,7 +162,14 @@ public:
 	FORCEINLINE USoundBase* GetPickupSound() const {return PickupSound;}
 	FORCEINLINE UPaperSpriteComponent* GetItemSprite() const {return ItemSprite;}
 	FORCEINLINE int GetItemQuantity() const {return ItemQuantity;}
+	FORCEINLINE FItemInfo GetItemInfo() {return ItemInfo;}
 
 	void SetItemState(EItemState NewState);
+
+	//create setters for struct members that are not strings
+	void SetItemValue(int NewValue) {ItemInfo.ItemValue = NewValue;}
+	void SetItemStackSize(int NewStackSize) {ItemInfo.StackSize = NewStackSize;}
+	void SetItemIcon(UTexture2D* NewIcon) {ItemInfo.ItemIcon = NewIcon;}
+	void SetItemType(EItemType NewItemType) {ItemInfo.ItemType = NewItemType;}
 
 };

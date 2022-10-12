@@ -347,6 +347,8 @@ public:
 	FORCEINLINE bool GetInteractTrace() {return bInteractTrace;}
 	FORCEINLINE bool GetItemTrace() {return bTraceForItems;}
 	FORCEINLINE USceneComponent* GetProjectileSpawn() {return ProjectileSpawn;}
+	FORCEINLINE USceneComponent* GetMainHandSpawn() {return MainHandSpawn;}
+	FORCEINLINE TMap<EEquipmentSlot, AItem*> GetEquippedItems() {return EquippedItems;}
 
 	void SetGold(int Value);
 	void SetInteractTrace(bool Trace);

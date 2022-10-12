@@ -53,9 +53,8 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//LoadGame();
-	SpawnDefaultWeapon();
-	SpawnSelectedAbility();
+	LoadGame();
+	
 	StartManaRegenTimer(ManaRegenSpeed);
 }
 
@@ -522,27 +521,16 @@ void APlayerCharacter::FillPlayerInfo()
 	}
 
 	//Inventory
-	for(AItem* Item : Inventory)
-	{
-		PlayerInfo.Inventory.Add(Item);
-	}
-
-	for(auto Equipped : EquippedItems)
-	{
-		PlayerInfo.EquippedItems.Add(Equipped.Key, Equipped.Value);
-	}
-	
-	PlayerInfo.AmmoMap = AmmoMap;
 	PlayerInfo.Gold = Gold;
 
 	//Combat
 	PlayerInfo.Defence = Defence;
 	PlayerInfo.SelectedAbility = PlayerAbilities->GetSelectedAbility();
 
-	for(TSubclassOf<AAbility> AbilityClass : PlayerAbilities->GetLearnedAbilities())
+	/*for(TSubclassOf<AAbility> AbilityClass : PlayerAbilities->GetLearnedAbilities())
 	{
 		PlayerInfo.Abilities.Add(AbilityClass);
-	}
+	}*/
 
 	PlayerInfo.ManaRegen = ManaRegen;
 	PlayerInfo.ManaRegenSpeed = ManaRegenSpeed;
@@ -569,18 +557,6 @@ void APlayerCharacter::PullPlayerInfo()
 		}
 
 		//Inventory
-
-		for(AItem* Item : PlayerInfo.Inventory)
-		{
-			Inventory.Add(Item);
-		}
-
-		for(auto Equipped : PlayerInfo.EquippedItems)
-		{
-			EquippedItems.Add(Equipped.Key, Equipped.Value);
-		}
-
-		AmmoMap = PlayerInfo.AmmoMap;
 		Gold = PlayerInfo.Gold;
 
 		//Combat
@@ -589,15 +565,14 @@ void APlayerCharacter::PullPlayerInfo()
 		ManaRegen = PlayerInfo.ManaRegen;
 		ManaRegenSpeed = PlayerInfo.ManaRegenSpeed;
 
-		for(TSubclassOf<AAbility> AbilityClass : PlayerInfo.Abilities)
+		/*for(TSubclassOf<AAbility> AbilityClass : PlayerInfo.Abilities)
 		{
 			PlayerAbilities -> AddAbility(AbilityClass);
-		}
+		}*/
 }
 
 void APlayerCharacter::SaveGame()
 {
-	//UDelveGameInstance* GameInstance = Cast<UDelveGameInstance>(UGameplayStatics::CreateSaveGameObject(UDelveSaveGame::StaticClass()));
 	UDelveGameInstance* GameInstance = Cast<UDelveGameInstance>(GetGameInstance());
 
 	UDelveSaveGame* SaveGameInstance = GameInstance->GetSaveGame();
@@ -610,6 +585,50 @@ void APlayerCharacter::SaveGame()
 	}
 
 	SaveGameInstance->SetInfoToSave(PlayerInfo);
+
+	for(AItem* Item : Inventory)
+	{
+		SaveGameInstance->GetInventoryClasses().Add(Item->GetClass());
+	}
+
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Head))
+	{
+		SaveGameInstance->SetPlayerHead(EquippedItems[EEquipmentSlot::EES_Head]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Torso))
+	{
+		SaveGameInstance->SetPlayerTorso(EquippedItems[EEquipmentSlot::EES_Torso]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Hands))
+	{
+		SaveGameInstance->SetPlayerHands(EquippedItems[EEquipmentSlot::EES_Hands]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Feet))
+	{
+		SaveGameInstance->SetPlayerFeet(EquippedItems[EEquipmentSlot::EES_Feet]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_MainHand))
+	{
+		SaveGameInstance->SetPlayerMainhand(EquippedItems[EEquipmentSlot::EES_MainHand]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Offhand))
+	{
+		SaveGameInstance->SetPlayerOffhand(EquippedItems[EEquipmentSlot::EES_Offhand]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Ring))
+	{
+		SaveGameInstance->SetPlayerRing(EquippedItems[EEquipmentSlot::EES_Ring]->GetClass());
+	}
+	if(EquippedItems.Contains(EEquipmentSlot::EES_Neck))
+	{
+		SaveGameInstance->SetPlayerNecklace(EquippedItems[EEquipmentSlot::EES_Neck]->GetClass());
+	}
+
+	for(auto AbilityClass : PlayerAbilities->GetLearnedAbilities())
+	{
+		SaveGameInstance->GetAbilityClasses().Add(AbilityClass);
+	}
+
 	UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, GameInstance->GetSaveSlot(), 0);
 }
 
@@ -624,6 +643,63 @@ void APlayerCharacter::LoadGame()
 
 		PullPlayerInfo();
 
+		if(CharacterSave->GetHeadInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Head, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetHeadInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetTorsoInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Torso, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetTorsoInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetHandsInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Hands, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetHandsInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetFeetInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Feet, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetFeetInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetMainhandInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_MainHand, GetWorld()->SpawnActor<AWeapon>(CharacterSave->GetMainhandInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetOffhandInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Offhand, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetOffhandInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetRingInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Ring, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetRingInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		if(CharacterSave->GetNeckInfo())
+		{
+			EquippedItems.Add(EEquipmentSlot::EES_Neck, GetWorld()->SpawnActor<AArmor>(CharacterSave->GetNeckInfo(), MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation()));
+		}
+		
+		for(auto Entry : EquippedItems)
+		{
+			Entry.Value->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
+			Entry.Value->SetOwner(this);
+			Entry.Value->SetItemState(EItemState::EIS_Equipped);
+		}
+
+		for(auto Entry : CharacterSave->GetInventoryClasses())
+		{
+			auto Item = GetWorld()->SpawnActor<AItem>(Entry, MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation());
+			Inventory.Add(Item);
+			Item->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
+			Item->SetOwner(this);
+			Item->SetItemState(EItemState::EIS_Carried);
+			Item->SetPlayerRef();
+
+			SetInventoryItemReference(Item);
+		}
+
+		for(auto Entry : CharacterSave->GetAbilityClasses())
+		{
+			PlayerAbilities->AddAbility(Entry);
+		}
+
 		UE_LOG(LogTemp, Warning, TEXT("Loading was successful."));
 	}
 	else
@@ -633,6 +709,8 @@ void APlayerCharacter::LoadGame()
 
 		UE_LOG(LogTemp, Warning, TEXT("Loading not successful."));
 
+		SpawnDefaultWeapon();
+		SpawnSelectedAbility();
 		CalculateDerivedStats();
 		Health = MaxHealth;
 		Magic = MaxMagic;

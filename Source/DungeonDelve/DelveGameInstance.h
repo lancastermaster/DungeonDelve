@@ -18,7 +18,7 @@ class DUNGEONDELVE_API UDelveGameInstance : public UGameInstance
 	
 
 	protected:
-	//virtual void Init() override;
+	virtual void Init() override;
 
 	private:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save Game", meta = (AllowPrivateAccess = true))
@@ -26,6 +26,9 @@ class DUNGEONDELVE_API UDelveGameInstance : public UGameInstance
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save Game", meta = (AllowPrivateAccess = true))
 		FString SaveSlotName;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Ref", meta = (AllowPrivateAccess = true))
+		class APlayerCharacter* PlayerRef;
 
 	public:
 

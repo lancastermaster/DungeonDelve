@@ -37,6 +37,9 @@ struct FWeaponInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
 	TSubclassOf<class AAbility> WeaponAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = true))
+	TSubclassOf<class UDamageType> DamageType;
 };
 
 UCLASS()
@@ -116,4 +119,14 @@ class DUNGEONDELVE_API AWeapon : public AItem
 		FORCEINLINE float GetWeaponRange() const {return WeaponRange;}
 		FORCEINLINE bool GetTwoHands() const {return bTwoHands;}
 		FORCEINLINE EDamageType GetWeaponDamageType() const {return WeaponDamageType;}
+		FORCEINLINE FWeaponInfo GetWeaponInfo() const {return WeaponInfo;}
+
+		void SetWeaponDamage(int NewDamage) {WeaponInfo.Damage = NewDamage;}
+		void SetWeaponAttackRate(float NewAttackRate) {WeaponInfo.AttackRate = NewAttackRate;}
+		void SetWeaponRange(float NewRange) {WeaponInfo.WeaponRange = NewRange;}
+		void SetWeaponTwoHands(bool Hands) {WeaponInfo.bTwoHands = Hands;}
+		void SetAttackParticles(UParticleSystem* NewParticles) {WeaponInfo.AttackParticles = NewParticles;}
+		void SetProjectile(TSubclassOf<AProjectile> NewProjectile) {WeaponInfo.WeaponProjectile = NewProjectile;}
+		void SetAbility(TSubclassOf<AAbility> NewAbility) {WeaponInfo.WeaponAbility = NewAbility;}
+		void SetDamageType(TSubclassOf<UDamageType> NewDamageType) {WeaponInfo.DamageType = NewDamageType;}
 };

@@ -51,5 +51,12 @@ class DUNGEONDELVE_API AArmor : public AItem
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor Properties", meta = (AllowPrivateAccess = true))
 		EEquipmentSlot ArmorSlot;
+
+	public:
+		FORCEINLINE FArmorInfo GetArmorInfo() const {return ArmorInfo;}
+
+		void SetArmorDefence(int NewDefence) {ArmorInfo.Defence = NewDefence;}
+		void SetArmorSlot(EEquipmentSlot NewSlot) {ArmorInfo.ArmorSlot = NewSlot;}
+		void SetArmorResists(TMap<EDamageType, int32> NewResists) {ArmorInfo.ResistanceMap = NewResists;}
 	
 };
