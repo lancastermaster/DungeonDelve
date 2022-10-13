@@ -193,6 +193,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void LoadGame();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void RefreshPlayerSkills();
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = true))
 	class UCameraComponent* Camera;

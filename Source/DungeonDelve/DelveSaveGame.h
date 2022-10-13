@@ -116,14 +116,13 @@ class DUNGEONDELVE_API UDelveSaveGame : public USaveGame
 	TArray<TSubclassOf<class AItem>> InventoryClasses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TArray<TSubclassOf<class AAbility>> AbilityClasses;
+	TArray<TSubclassOf<AAbility>> AbilityClasses;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Ref", meta = (AllowPrivateAccess = true))
 	//class APlayerCharacter* PlayerRef;
 
 	public:
 	FORCEINLINE FPlayerInfo GetPlayerInfoToLoad() {return PlayerInfoToSave;}
-	//FORCEINLINE TArray<struct FInventoryInfo> GetInventoryInfo() {return InventoryInfo;}
 	FORCEINLINE TArray<TSubclassOf<AItem>> GetInventoryClasses() {return InventoryClasses;}
 	FORCEINLINE TArray<TSubclassOf<AAbility>> GetAbilityClasses() {return AbilityClasses;}
 	FORCEINLINE TSubclassOf<AArmor> GetHeadInfo() {return PlayerHead;}
@@ -144,4 +143,6 @@ class DUNGEONDELVE_API UDelveSaveGame : public USaveGame
 	void SetPlayerOffhand(TSubclassOf<AArmor> ArmorClass) {PlayerOffhand = ArmorClass;}
 	void SetPlayerRing(TSubclassOf<AArmor> ArmorClass) {PlayerRing = ArmorClass;}
 	void SetPlayerNecklace(TSubclassOf<AArmor> ArmorClass) {PlayerNecklace = ArmorClass;}
+	void AddAbilityToSave(TSubclassOf<AAbility> AddedAbility);
+	void AddItemToInventoryClasses(TSubclassOf<AItem> AddedItem);
 };

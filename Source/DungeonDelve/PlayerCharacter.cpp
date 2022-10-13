@@ -588,7 +588,7 @@ void APlayerCharacter::SaveGame()
 
 	for(AItem* Item : Inventory)
 	{
-		SaveGameInstance->GetInventoryClasses().Add(Item->GetClass());
+		SaveGameInstance->AddItemToInventoryClasses(Item->GetClass());
 	}
 
 	if(EquippedItems.Contains(EEquipmentSlot::EES_Head))
@@ -624,9 +624,9 @@ void APlayerCharacter::SaveGame()
 		SaveGameInstance->SetPlayerNecklace(EquippedItems[EEquipmentSlot::EES_Neck]->GetClass());
 	}
 
-	for(auto AbilityClass : PlayerAbilities->GetLearnedAbilities())
+	for(TSubclassOf<AAbility> AbilityClass : PlayerAbilities->GetLearnedAbilities())
 	{
-		SaveGameInstance->GetAbilityClasses().Add(AbilityClass);
+		SaveGameInstance->AddAbilityToSave(AbilityClass);
 	}
 
 	UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, GameInstance->GetSaveSlot(), 0);
@@ -683,9 +683,10 @@ void APlayerCharacter::LoadGame()
 			Entry.Value->SetItemState(EItemState::EIS_Equipped);
 		}
 
-		for(auto Entry : CharacterSave->GetInventoryClasses())
+		for(TSubclassOf<AItem> Entry : CharacterSave->GetInventoryClasses())
 		{
-			auto Item = GetWorld()->SpawnActor<AItem>(Entry, MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation());
+			AItem* Item = GetWorld()->SpawnActor<AItem>(Entry, MainHandSpawn->GetComponentLocation(), MainHandSpawn->GetComponentRotation());
+			
 			Inventory.Add(Item);
 			Item->AttachToComponent(MainHandSpawn, FAttachmentTransformRules::KeepRelativeTransform);
 			Item->SetOwner(this);
@@ -695,10 +696,17 @@ void APlayerCharacter::LoadGame()
 			SetInventoryItemReference(Item);
 		}
 
-		for(auto Entry : CharacterSave->GetAbilityClasses())
+		if(PlayerAbilities->GetSelectedAbility())
+		{
+			SpawnSelectedAbility();
+		}
+
+		for(TSubclassOf<AAbility> Entry : CharacterSave->GetAbilityClasses())
 		{
 			PlayerAbilities->AddAbility(Entry);
 		}
+
+		RefreshPlayerSkills();
 
 		UE_LOG(LogTemp, Warning, TEXT("Loading was successful."));
 	}

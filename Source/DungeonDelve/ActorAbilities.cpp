@@ -2,6 +2,7 @@
 
 
 #include "ActorAbilities.h"
+#include "Ability.h"
 
 // Sets default values for this component's properties
 UActorAbilities::UActorAbilities()
@@ -34,5 +35,5 @@ void UActorAbilities::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UActorAbilities::AddAbility(TSubclassOf<AAbility> AbilityToAdd)
 {
-	Abilities.Add(AbilityToAdd);
+	Abilities.AddUnique(AbilityToAdd);
 }

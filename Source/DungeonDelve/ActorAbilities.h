@@ -36,6 +36,6 @@ public:
 	FORCEINLINE TSubclassOf<AAbility> GetSelectedAbility() {return SelectedAbility;}
 
 	void SetSelectedAbility(TSubclassOf<AAbility> AbilityToSet) {SelectedAbility = AbilityToSet;}
-	void SetAbilities(TArray<TSubclassOf<class AAbility>> AbilitiesToLearn) {Abilities = AbilitiesToLearn;}
+	void SetAbilities(TArray<TSubclassOf<AAbility>> AbilitiesToLearn) {Abilities = AbilitiesToLearn;}
 	void AddAbility(TSubclassOf<AAbility> AbilityToAdd);
 };
