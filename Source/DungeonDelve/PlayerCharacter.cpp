@@ -101,15 +101,15 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 {
 	int InDamage = FMath::RoundToInt(DamageAmount);
 	int DamageTaken = InDamage - Defence;
+	if(DamageTaken <= 0)return DamageTaken;
 
 	if(bHurtSoundCanPlay)
 	{
 		UGameplayStatics::PlaySound2D(this, PlayerHurtSound);
 		bHurtSoundCanPlay = false;
-		StartHurtTimer(1.f);
+		StartHurtTimer(0.5f);
 	}
 
-	if(DamageTaken <= 0)return DamageTaken;
 	if(Health - DamageTaken <= 0)
 	{
 		Health = 0;
