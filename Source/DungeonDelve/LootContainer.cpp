@@ -9,6 +9,7 @@
 #include "Item.h"
 #include "Armor.h"
 #include "Weapon.h"
+#include "Consumable.h"
 #include "PlayerCharacter.h"
 
 // Sets default values
@@ -53,7 +54,6 @@ void ALootContainer::Tick(float DeltaTime)
 
 void ALootContainer::FillInventory()
 {
-	int RandomIndex = PotentialLoot.Num()-1;
 	FVector ContainerLocation = GetActorLocation();
 
 	if(PotentialLoot.Num() == 0)return;
@@ -61,10 +61,12 @@ void ALootContainer::FillInventory()
 
 	for(int i = 0; i < LootNumber; i++)
 	{
+		int RandomIndex = FMath::RandRange(0, PotentialLoot.Num()-1);
 		AItem* SpawnedItem = GetWorld()->SpawnActor<AItem>(PotentialLoot[RandomIndex]);
 
 		auto Armor = Cast<AArmor>(SpawnedItem);
 		auto Weapon = Cast<AWeapon>(SpawnedItem);
+		auto Consumable = Cast<AConsumable>(SpawnedItem);
 
 		if(Armor)
 		{
@@ -79,6 +81,13 @@ void ALootContainer::FillInventory()
 			Weapon->SetActorLocation(ContainerLocation);
 			Weapon->SetOwner(this);
 			InventoryComp->AddToInventory(Weapon);
+		}
+		else if(Consumable)
+		{
+			Consumable->SetItemState(EItemState::EIS_Carried);
+			Consumable->SetActorLocation(ContainerLocation);
+			Consumable->SetOwner(this);
+			InventoryComp->AddToInventory(Consumable);
 		}
 		else
 		{
